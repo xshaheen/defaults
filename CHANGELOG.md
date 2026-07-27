@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.1] - 2026-07-27
+
+### Changed
+
+- Updated build, test, and source-link dependencies, including the injected Microsoft Testing Platform extensions now shipped at 2.3.2.
+- Updated repository CI to .NET SDK 10.0.302 and current GitHub Actions runtime dependencies.
+
 ## [0.1.0] - 2026-07-19
 
 ### Breaking Changes

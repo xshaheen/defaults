@@ -87,11 +87,11 @@ public sealed class PackageContractTests(HeadlessSdkPackageFixture fixture)
     )
     {
         ["Microsoft.Testing.Extensions.CodeCoverage"] = "[18.9.0]",
-        ["Microsoft.Testing.Extensions.CrashDump"] = "[2.3.1]",
-        ["Microsoft.Testing.Extensions.HangDump"] = "[2.3.1]",
-        ["Microsoft.Testing.Extensions.HotReload"] = "[2.3.1]",
-        ["Microsoft.Testing.Extensions.Retry"] = "[2.3.1]",
-        ["Microsoft.Testing.Extensions.TrxReport"] = "[2.3.1]",
+        ["Microsoft.Testing.Extensions.CrashDump"] = "[2.3.2]",
+        ["Microsoft.Testing.Extensions.HangDump"] = "[2.3.2]",
+        ["Microsoft.Testing.Extensions.HotReload"] = "[2.3.2]",
+        ["Microsoft.Testing.Extensions.Retry"] = "[2.3.2]",
+        ["Microsoft.Testing.Extensions.TrxReport"] = "[2.3.2]",
     };
 
     [Fact]

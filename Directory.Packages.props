@@ -11,9 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.300" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.301" />
     <PackageVersion Include="Microsoft.Sbom.Targets" Version="4.1.5" />
-    <PackageVersion Include="MSBuild.StructuredLogger" Version="2.3.204" />
+    <PackageVersion Include="MSBuild.StructuredLogger" Version="2.3.213" />
     <PackageVersion Include="MinVer" Version="7.0.0" />
     <PackageVersion Include="xunit.v3.mtp-v2" Version="3.2.2" />
     <!--
@@ -22,11 +22,11 @@
       shipped version properties and package dependencies; VersionConsistencyTests enforces the
       three-way contract.
     -->
-    <PackageVersion Include="Microsoft.Testing.Extensions.TrxReport" Version="2.3.1" />
+    <PackageVersion Include="Microsoft.Testing.Extensions.TrxReport" Version="2.3.2" />
     <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.9.0" />
-    <PackageVersion Include="Microsoft.Testing.Extensions.CrashDump" Version="2.3.1" />
-    <PackageVersion Include="Microsoft.Testing.Extensions.HangDump" Version="2.3.1" />
-    <PackageVersion Include="Microsoft.Testing.Extensions.HotReload" Version="2.3.1" />
-    <PackageVersion Include="Microsoft.Testing.Extensions.Retry" Version="2.3.1" />
+    <PackageVersion Include="Microsoft.Testing.Extensions.CrashDump" Version="2.3.2" />
+    <PackageVersion Include="Microsoft.Testing.Extensions.HangDump" Version="2.3.2" />
+    <PackageVersion Include="Microsoft.Testing.Extensions.HotReload" Version="2.3.2" />
+    <PackageVersion Include="Microsoft.Testing.Extensions.Retry" Version="2.3.2" />
   </ItemGroup>
 </Project>

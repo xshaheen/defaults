@@ -349,7 +349,7 @@ Headless owns the transitive `Microsoft.Sbom.Targets` version; consumers do not 
 
 Explicit consumer `IncludeSymbols` and `SymbolPackageFormat` values remain authoritative. For portable PDBs, use `HeadlessSymbolFormat=snupkg`; the Microsoft SDK initializes `DebugType=portable` before Headless can distinguish an explicit value from the default.
 
-Headless follows the Microsoft SDK default for `EmbedUntrackedSources` and does not set it.
+The `embedded` and `snupkg` formats default `EmbedUntrackedSources=true` so sources the repository does not track (source-generator output, generated files under `obj/`) stay debuggable from the PDB; SourceLink cannot fetch untracked files. Consumer-set values win, and `none` stays on Microsoft defaults.
 
 ### Package metadata
 

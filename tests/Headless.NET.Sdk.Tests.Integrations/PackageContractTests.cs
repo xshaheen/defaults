@@ -306,16 +306,49 @@ public sealed class PackageContractTests(HeadlessSdkPackageFixture fixture)
     }
 
     [Fact]
-    public void should_not_override_microsoft_source_embedding_defaults()
+    public void should_embed_untracked_sources_for_symbol_shipping_formats()
     {
+        // embedded/snupkg PDBs embed untracked sources (source-generator output, obj/ generated
+        // files) because SourceLink cannot fetch what the repository does not track. The 'none'
+        // format ships no symbols and must stay on Microsoft defaults.
         using var package = ZipFile.OpenRead(fixture.PackagePath);
         var target = package.GetEntry("build/SupportPackageInformation.targets");
         Assert.NotNull(target);
 
         using var reader = new StreamReader(target.Open());
-        var content = reader.ReadToEnd();
+        var document = XDocument.Parse(reader.ReadToEnd());
 
-        Assert.DoesNotContain("<EmbedUntrackedSources>", content, StringComparison.Ordinal);
+        var symbolBranches = document
+            .Root!.Elements("PropertyGroup")
+            .Where(group =>
+                group.Attribute("Condition")?.Value.Contains("$(HeadlessSymbolFormat)", StringComparison.Ordinal)
+                    is true
+            )
+            .ToDictionary(
+                group => group.Attribute("Condition")!.Value,
+                group => group.Elements("EmbedUntrackedSources").ToList(),
+                StringComparer.Ordinal
+            );
+
+        foreach (var (condition, embedElements) in symbolBranches)
+        {
+            if (condition.Contains("'embedded'", StringComparison.Ordinal))
+            {
+                var element = Assert.Single(embedElements);
+                Assert.Equal("true", element.Value);
+                Assert.Contains("'$(EmbedUntrackedSources)' == ''", element.Attribute("Condition")?.Value);
+            }
+            else if (condition.Contains("'snupkg'", StringComparison.Ordinal))
+            {
+                var element = Assert.Single(embedElements);
+                Assert.Equal("true", element.Value);
+                Assert.Contains("'$(EmbedUntrackedSources)' == ''", element.Attribute("Condition")?.Value);
+            }
+            else if (condition.Contains("'none'", StringComparison.Ordinal))
+            {
+                Assert.Empty(embedElements);
+            }
+        }
     }
 
     [Fact]

@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Changed
+
+- The `embedded` and `snupkg` symbol formats now default `EmbedUntrackedSources=true` so untracked sources (source-generator output, generated files) stay debuggable from the PDB; SourceLink cannot fetch files the repository does not track. Consumer-set values win, and `HeadlessSymbolFormat=none` stays on Microsoft defaults.
+
+### Fixed
+
+- The shipped packaging targets no longer inject the SDK author's tag into consumer `PackageTags`; consumer tags pass through untouched.
+- Platform contract tests now report as skipped instead of passed when running on a non-matching operating system.
+
 ## [0.1.1] - 2026-07-27
 
 ### Changed

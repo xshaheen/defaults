@@ -10,7 +10,8 @@
     <!-- Repository-owned packages always carry the root icon, including isolated project packs. -->
     <PackageIcon>logo.png</PackageIcon>
     <DisablePackageLogo>true</DisablePackageLogo>
-    <PackageTags>sdk;msbuild-sdk;msbuild;editorconfig;configuration;settings;props;targets</PackageTags>
+    <!-- Author tag is repo-owned metadata; the shipped targets must not inject it into consumer packages. -->
+    <PackageTags>xshaheen;sdk;msbuild-sdk;msbuild;editorconfig;configuration;settings;props;targets</PackageTags>
     <CopyrightYearStart>2024</CopyrightYearStart>
   </PropertyGroup>
 

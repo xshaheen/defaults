@@ -358,17 +358,29 @@ public sealed partial class SdkIntegrationTests
     }
 
     [Fact]
-    public async Task should_prefix_package_tags_with_author_tag_when_not_a_test_project()
+    public async Task should_leave_package_tags_untouched()
     {
-        // SupportPackageInformation.targets prepends "xshaheen;" to PackageTags for non-test projects.
-        await using var project = await ConsumerProject.CreateAsync(
+        // The SDK must not inject author identity into consumer packages: PackageTags stays empty
+        // by default and consumer-set values pass through unchanged (same stance as the deliberate
+        // refusal to default Authors/Company in SupportPackageInformation.targets).
+        await using var defaultProject = await ConsumerProject.CreateAsync(
             fixture.PackageVersion,
             fixture.PackageSourceDirectory
         );
 
-        var properties = await project.EvaluateHeadlessPropertiesAsync();
+        var defaultProperties = await defaultProject.EvaluateHeadlessPropertiesAsync();
 
-        Assert.StartsWith("xshaheen", properties["PackageTags"], StringComparison.Ordinal);
+        Assert.Empty(defaultProperties["PackageTags"]);
+
+        await using var taggedProject = await ConsumerProject.CreateAsync(
+            fixture.PackageVersion,
+            fixture.PackageSourceDirectory,
+            extraProperties: new Dictionary<string, string>(StringComparer.Ordinal) { ["PackageTags"] = "custom-tag" }
+        );
+
+        var taggedProperties = await taggedProject.EvaluateHeadlessPropertiesAsync();
+
+        Assert.Equal("custom-tag", taggedProperties["PackageTags"]);
     }
 
     [Fact]

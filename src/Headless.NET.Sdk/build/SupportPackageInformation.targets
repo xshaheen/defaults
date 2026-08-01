@@ -3,7 +3,6 @@
     Label="Package Information"
     Condition=" '$(IsTestProject)' != 'true' and '$(IsTestHarnessProject)' != 'true' "
   >
-    <PackageTags>xshaheen;$(PackageTags)</PackageTags>
     <PackageId Condition=" '$(PackageId)' == '' ">$(MSBuildProjectName)</PackageId>
     <Title Condition=" '$(Title)' == '' ">$(MSBuildProjectName)</Title>
 

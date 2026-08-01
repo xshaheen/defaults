@@ -6,6 +6,9 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Updated the mandatory analyzer baseline: `Meziantou.Analyzer` 3.0.75 → 3.0.125, `Microsoft.CodeAnalysis.BannedApiAnalyzers` 4.14.0 → 5.6.0, and `Microsoft.VisualStudio.Threading.Analyzers` 17.14.15 → 18.7.23. The remaining six analyzer packages were already at their latest published versions.
+- Analyzer versions are now single-sourced through `Directory.Packages.props` and covered by the Dependabot anchor project, so analyzer bump PRs open automatically; `VersionConsistencyTests` enforces consistency between the central pins, the shipped version properties, and the nuspec dependency ranges.
+
 - The `embedded` and `snupkg` symbol formats now default `EmbedUntrackedSources=true` so untracked sources (source-generator output, generated files) stay debuggable from the PDB; SourceLink cannot fetch files the repository does not track. Consumer-set values win, and `HeadlessSymbolFormat=none` stays on Microsoft defaults.
 
 ### Fixed

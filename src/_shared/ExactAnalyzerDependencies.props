@@ -5,6 +5,25 @@
     analyzer baseline before Headless can reassert its implicit references during evaluation.
   -->
   <ItemGroup>
+    <!--
+      Directory.Packages.props carries the analyzer pins so the Dependabot anchor project keeps
+      them fresh, but this repository's own SDK projects reference the analyzers implicitly and
+      NU1009 rejects a central pin for implicitly-defined references (the same guard consumers
+      get). Removing the central items here keeps the pins Dependabot-visible without tripping
+      the guard; VersionConsistencyTests keeps both sources synchronized.
+    -->
+    <PackageVersion Remove="Meziantou.Analyzer" />
+    <PackageVersion Remove="Microsoft.CodeAnalysis.BannedApiAnalyzers" />
+    <PackageVersion Remove="AsyncFixer" />
+    <PackageVersion Remove="Asyncify" />
+    <PackageVersion Remove="Microsoft.VisualStudio.Threading.Analyzers" />
+    <PackageVersion Remove="SmartAnalyzers.MultithreadingAnalyzer" />
+    <PackageVersion Remove="Roslynator.Analyzers" />
+    <PackageVersion Remove="ReflectionAnalyzers" />
+    <PackageVersion Remove="ErrorProne.NET.CoreAnalyzers" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference
       Update="Meziantou.Analyzer"
       VersionOverride="[$(_HeadlessMeziantouAnalyzerVersion)]"

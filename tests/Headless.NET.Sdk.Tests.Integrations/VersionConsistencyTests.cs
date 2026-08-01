@@ -27,6 +27,23 @@ public sealed class VersionConsistencyTests
         ["_HeadlessMtpCodeCoverageVersion"] = "Microsoft.Testing.Extensions.CodeCoverage",
     };
 
+    // Shipped analyzer version property -> the mandatory analyzer package it pins.
+    private static readonly IReadOnlyDictionary<string, string> AnalyzerVersionProperties = new Dictionary<
+        string,
+        string
+    >(StringComparer.Ordinal)
+    {
+        ["_HeadlessMeziantouAnalyzerVersion"] = "Meziantou.Analyzer",
+        ["_HeadlessBannedApiAnalyzersVersion"] = "Microsoft.CodeAnalysis.BannedApiAnalyzers",
+        ["_HeadlessAsyncFixerVersion"] = "AsyncFixer",
+        ["_HeadlessAsyncifyVersion"] = "Asyncify",
+        ["_HeadlessVisualStudioThreadingAnalyzersVersion"] = "Microsoft.VisualStudio.Threading.Analyzers",
+        ["_HeadlessMultithreadingAnalyzerVersion"] = "SmartAnalyzers.MultithreadingAnalyzer",
+        ["_HeadlessRoslynatorAnalyzersVersion"] = "Roslynator.Analyzers",
+        ["_HeadlessReflectionAnalyzersVersion"] = "ReflectionAnalyzers",
+        ["_HeadlessErrorProneAnalyzersVersion"] = "ErrorProne.NET.CoreAnalyzers",
+    };
+
     [Fact]
     public void shipped_test_tool_versions_should_match_central_package_versions()
     {
@@ -80,6 +97,91 @@ public sealed class VersionConsistencyTests
             Assert.Equal($"$({property})", reference.Attribute("Version")?.Value);
             Assert.Equal("true", reference.Attribute("IsImplicitlyDefined")?.Value);
             Assert.Equal("all", reference.Attribute("PrivateAssets")?.Value);
+        }
+    }
+
+    [Fact]
+    public void shipped_analyzer_versions_should_match_central_package_versions()
+    {
+        var repositoryRoot = TestRepository.FindRoot("version consistency tests");
+        var central = ReadCentralPackageVersions(Path.Combine(repositoryRoot, "Directory.Packages.props"));
+        var shipped = ReadPropertyValues(
+            Path.Combine(repositoryRoot, "src", "Headless.NET.Sdk", "build", "SupportImplicitAnalyzers.props")
+        );
+
+        foreach (var (property, packageId) in AnalyzerVersionProperties)
+        {
+            Assert.True(
+                shipped.TryGetValue(property, out var shippedVersion),
+                $"SupportImplicitAnalyzers.props is missing {property}."
+            );
+            Assert.True(
+                central.TryGetValue(packageId, out var centralVersion),
+                $"Directory.Packages.props has no <PackageVersion> for {packageId}."
+            );
+            Assert.True(
+                string.Equals(shippedVersion, centralVersion, StringComparison.Ordinal),
+                $"{packageId}: SupportImplicitAnalyzers.props has {shippedVersion} but "
+                    + $"Directory.Packages.props pins {centralVersion}."
+            );
+        }
+    }
+
+    [Fact]
+    public void implicit_analyzer_references_should_use_shipped_version_properties()
+    {
+        var repositoryRoot = TestRepository.FindRoot("version consistency tests");
+        var props = XDocument.Load(
+            Path.Combine(repositoryRoot, "src", "Headless.NET.Sdk", "build", "SupportImplicitAnalyzers.props")
+        );
+        var references = props
+            .Descendants("PackageReference")
+            .ToDictionary(
+                element => element.Attribute("Include")?.Value ?? string.Empty,
+                element => element,
+                StringComparer.Ordinal
+            );
+
+        Assert.Equal(AnalyzerVersionProperties.Count, references.Count);
+
+        foreach (var (property, packageId) in AnalyzerVersionProperties)
+        {
+            Assert.True(
+                references.TryGetValue(packageId, out var reference),
+                $"Missing implicit analyzer reference: {packageId}."
+            );
+            Assert.Equal($"$({property})", reference.Attribute("Version")?.Value);
+            Assert.Equal("true", reference.Attribute("IsImplicitlyDefined")?.Value);
+            Assert.Equal("all", reference.Element("PrivateAssets")?.Value);
+        }
+    }
+
+    [Fact]
+    public void dependabot_anchor_should_reference_every_sdk_owned_pin()
+    {
+        var repositoryRoot = TestRepository.FindRoot("version consistency tests");
+        var anchor = XDocument.Load(
+            Path.Combine(
+                repositoryRoot,
+                "tests",
+                "Headless.NET.Sdk.TestToolVersions.Anchor",
+                "Headless.NET.Sdk.TestToolVersions.Anchor.csproj"
+            )
+        );
+        var anchorReferences = anchor
+            .Descendants("PackageReference")
+            .Select(element => element.Attribute("Include")?.Value)
+            .Where(include => include is not null)
+            .ToHashSet(StringComparer.Ordinal);
+
+        var sdkOwnedPackages = InjectedVersionProperties.Values.Concat(AnalyzerVersionProperties.Values);
+
+        foreach (var packageId in sdkOwnedPackages)
+        {
+            Assert.True(
+                anchorReferences.Contains(packageId),
+                $"The Dependabot anchor project does not reference {packageId}; its central pin will never be bumped."
+            );
         }
     }
 

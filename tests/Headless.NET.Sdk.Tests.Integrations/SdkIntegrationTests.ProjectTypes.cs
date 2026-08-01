@@ -373,7 +373,7 @@ public sealed partial class SdkIntegrationTests
         var headlessVersion = useSdkConsumption
             ? string.Empty
             : $@"<PackageVersion Include=""Headless.NET.Sdk"" Version=""{fixture.PackageVersion}"" />";
-        var analyzerVersion = useSdkConsumption ? "3.0.75" : "1.0.102";
+        var analyzerVersion = useSdkConsumption ? "3.0.125" : "1.0.102";
         var centralVersions =
             $@"{headlessVersion}
 <PackageVersion Include=""Meziantou.Analyzer"" Version=""{analyzerVersion}"" />";

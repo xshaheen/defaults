@@ -41,12 +41,12 @@ public sealed partial class SdkIntegrationTests
 
         var noWarn = properties["NoWarn"].Split('|', StringSplitOptions.RemoveEmptyEntries);
 
-        Assert.Contains("CA1849", noWarn);
-        Assert.Contains("MA0042", noWarn);
-        Assert.Contains("MA0166", noWarn);
-        Assert.Contains("CA1861", noWarn);
-        Assert.Contains("CA1859", noWarn);
-        Assert.Contains("CA1720", noWarn);
+        // Analyzer relaxations live in the tests editorconfig overlay (consumer-overridable);
+        // NoWarn retains only the compiler/NuGet diagnostics analyzer config cannot express.
+        Assert.Contains("1712", noWarn);
+        Assert.Contains("NU5104", noWarn);
+        Assert.DoesNotContain("CA1849", noWarn);
+        Assert.DoesNotContain("MA0042", noWarn);
     }
 
     [Fact]
@@ -74,12 +74,12 @@ public sealed partial class SdkIntegrationTests
         );
 
         var noWarn = properties["NoWarn"].Split('|', StringSplitOptions.RemoveEmptyEntries);
-        Assert.Contains("CA1849", noWarn);
-        Assert.Contains("MA0042", noWarn);
-        Assert.Contains("MA0166", noWarn);
-        Assert.Contains("CA1861", noWarn);
-        Assert.Contains("CA1859", noWarn);
-        Assert.Contains("CA1720", noWarn);
+        // Analyzer relaxations live in the tests editorconfig overlay (consumer-overridable);
+        // NoWarn retains only the compiler/NuGet diagnostics analyzer config cannot express.
+        Assert.Contains("1712", noWarn);
+        Assert.Contains("NU5104", noWarn);
+        Assert.DoesNotContain("CA1849", noWarn);
+        Assert.DoesNotContain("MA0042", noWarn);
 
         Assert.Empty(properties["TestingPlatformCommandLineArguments"]);
     }
@@ -114,12 +114,12 @@ public sealed partial class SdkIntegrationTests
         );
 
         var noWarn = properties["NoWarn"].Split('|', StringSplitOptions.RemoveEmptyEntries);
-        Assert.Contains("CA1849", noWarn);
-        Assert.Contains("MA0042", noWarn);
-        Assert.Contains("MA0166", noWarn);
-        Assert.Contains("CA1861", noWarn);
-        Assert.Contains("CA1859", noWarn);
-        Assert.Contains("CA1720", noWarn);
+        // Analyzer relaxations live in the tests editorconfig overlay (consumer-overridable);
+        // NoWarn retains only the compiler/NuGet diagnostics analyzer config cannot express.
+        Assert.Contains("1712", noWarn);
+        Assert.Contains("NU5104", noWarn);
+        Assert.DoesNotContain("CA1849", noWarn);
+        Assert.DoesNotContain("MA0042", noWarn);
 
         Assert.Empty(properties["TestingPlatformCommandLineArguments"]);
     }

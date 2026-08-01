@@ -84,6 +84,16 @@ internal sealed class ConsumerProject : IAsyncDisposable
     )
     {
         var rootDirectory = Path.Combine(Path.GetTempPath(), "Headless.NET.Sdk.Consumer", Guid.NewGuid().ToString("N"));
+
+        if (OperatingSystem.IsMacOS() && rootDirectory.StartsWith("/var/", StringComparison.Ordinal))
+        {
+            // macOS /var is a symlink to /private/var. The compiler canonicalizes source paths to
+            // the real path while .editorconfig items keep the symlinked path, and editorconfig
+            // section matching is a path-prefix comparison — so a consumer .editorconfig under the
+            // symlinked root silently applies to nothing. Use the real path from the start.
+            rootDirectory = $"/private{rootDirectory}";
+        }
+
         Directory.CreateDirectory(rootDirectory);
 
         var project = new ConsumerProject(rootDirectory, packageVersion, packageSourceDirectory);

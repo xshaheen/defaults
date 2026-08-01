@@ -85,32 +85,36 @@ public sealed partial class SdkIntegrationTests
     }
 
     [Fact]
-    public void should_suppress_test_noise_warnings_when_project_is_a_test_project()
+    public void should_relax_test_noise_rules_via_the_tests_editorconfig()
     {
+        // Test-project relaxations live in the tests editorconfig overlay (severity = none), NOT
+        // in a NoWarn block: /nowarn cannot be overridden downstream, while a consumer
+        // .editorconfig can re-enable any of these per project. Only the Aspire CA1707 line and
+        // the compiler/NuGet diagnostics (CS1712/NU5104, CS1573/CS1591) remain property-based.
         using var package = ZipFile.OpenRead(fixture.PackagePath);
-        // The test-project NoWarn lives in SupportGeneral.targets (not .props) so consumer-set
-        // IsTestProject / IsTestHarnessProject values are visible under MSBuild SDK consumption,
-        // where build props load before Directory.Build.props.
-        var content = ReadPackageEntry(package, "build/SupportGeneral.targets");
-        var document = XDocument.Parse(content);
-        var testNoWarn = document
+        var targets = XDocument.Parse(ReadPackageEntry(package, "build/SupportGeneral.targets"));
+        var conditionalNoWarn = targets
             .Root!.Elements("PropertyGroup")
             .Elements("NoWarn")
-            .Single(element =>
-                string.Equals(
-                    element.Attribute("Condition")?.Value,
-                    "'$(IsTestProject)' == 'true' or '$(IsTestHarnessProject)' == 'true'",
-                    StringComparison.Ordinal
-                )
+            .Select(element => element.Attribute("Condition")?.Value ?? string.Empty)
+            .Where(condition =>
+                condition.Contains("IsTestProject", StringComparison.Ordinal)
+                || condition.Contains("IsTestHarnessProject", StringComparison.Ordinal)
             )
-            .Value;
+            .ToList();
 
-        Assert.Contains("CA1849", testNoWarn, StringComparison.Ordinal);
-        Assert.Contains("MA0042", testNoWarn, StringComparison.Ordinal);
-        Assert.Contains("MA0166", testNoWarn, StringComparison.Ordinal);
-        Assert.Contains("CA1861", testNoWarn, StringComparison.Ordinal);
-        Assert.Contains("CA1859", testNoWarn, StringComparison.Ordinal);
-        Assert.Contains("CA1720", testNoWarn, StringComparison.Ordinal);
+        Assert.Empty(conditionalNoWarn);
+
+        var testsEditorConfig = ReadPackageEntry(package, "configurations/Headless.NET.Sdk.Tests.editorconfig");
+
+        Assert.Contains("dotnet_diagnostic.CA1707.severity = none", testsEditorConfig, StringComparison.Ordinal);
+        Assert.Contains("dotnet_diagnostic.CS8604.severity = none", testsEditorConfig, StringComparison.Ordinal);
+        Assert.Contains("dotnet_diagnostic.CA1849.severity = none", testsEditorConfig, StringComparison.Ordinal);
+        Assert.Contains("dotnet_diagnostic.MA0042.severity = none", testsEditorConfig, StringComparison.Ordinal);
+        Assert.Contains("dotnet_diagnostic.MA0166.severity = none", testsEditorConfig, StringComparison.Ordinal);
+        Assert.Contains("dotnet_diagnostic.CA1861.severity = none", testsEditorConfig, StringComparison.Ordinal);
+        Assert.Contains("dotnet_diagnostic.CA1859.severity = none", testsEditorConfig, StringComparison.Ordinal);
+        Assert.Contains("dotnet_diagnostic.CA1720.severity = none", testsEditorConfig, StringComparison.Ordinal);
     }
 
     [Fact]

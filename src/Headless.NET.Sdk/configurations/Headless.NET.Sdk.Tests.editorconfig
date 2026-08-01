@@ -115,6 +115,43 @@ dotnet_diagnostic.MA0176.severity = none
 # IDE1006: Naming rule violation
 # Tests use the snake_case `should_do_thing` method-naming convention for readability.
 dotnet_diagnostic.IDE1006.severity = none
+# CA1707: Identifiers should not contain underscores
+# snake_case test names contain underscores by convention.
+dotnet_diagnostic.CA1707.severity = none
+
+# --- Test noise (migrated from the former test-project NoWarn) ---
+# severity = none keeps these consumer-overridable; a NoWarn entry would not be.
+
+# IDE0022: Use block/expression body for method
+dotnet_diagnostic.IDE0022.severity = none
+# CS8604: Possible null reference argument — tests intentionally pass nulls at contract edges
+dotnet_diagnostic.CS8604.severity = none
+# S4144: Methods should not have identical implementations — parameterized tests often do
+dotnet_diagnostic.S4144.severity = none
+# CA5394: Do not use insecure randomness — test data does not need a CSPRNG
+dotnet_diagnostic.CA5394.severity = none
+# CA1848: Use the LoggerMessage delegates — irrelevant in test code
+dotnet_diagnostic.CA1848.severity = none
+# MA0076: Do not use implicit culture-sensitive ToString in interpolated strings
+dotnet_diagnostic.MA0076.severity = none
+# MA0003: Add parameter name to improve readability
+dotnet_diagnostic.MA0003.severity = none
+# CA2254: Logging template should not vary between calls — assertion messages do
+dotnet_diagnostic.CA2254.severity = none
+# IDE0039: Use local function instead of lambda
+dotnet_diagnostic.IDE0039.severity = none
+# CA1849: Call async methods when in an async method — sync APIs are exercised deliberately
+dotnet_diagnostic.CA1849.severity = none
+# MA0042: Do not use blocking calls in an async method — same rationale as CA1849
+dotnet_diagnostic.MA0042.severity = none
+# MA0166: Forward the TimeProvider to methods that take one
+dotnet_diagnostic.MA0166.severity = none
+# CA1861: Avoid constant arrays as arguments — theory data readability wins
+dotnet_diagnostic.CA1861.severity = none
+# CA1859: Use concrete types when possible — tests exercise the abstractions
+dotnet_diagnostic.CA1859.severity = none
+# CA1720: Identifiers should not contain type names — test names describe the types under test
+dotnet_diagnostic.CA1720.severity = none
 
 # --- Style & maintainability ---
 

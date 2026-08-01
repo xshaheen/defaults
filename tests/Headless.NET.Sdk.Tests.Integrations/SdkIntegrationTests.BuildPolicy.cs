@@ -106,6 +106,47 @@ class Foo { }
     }
 
     [Fact]
+    public async Task should_allow_consumer_editorconfig_to_reenable_baseline_disabled_rules()
+    {
+        // The baseline disables ship as editorconfig severity = none (global_level 0), so a
+        // consumer's own file-scoped .editorconfig can raise any of them back. CA1031 is
+        // representative: disabled by the SDK baseline, re-enabled here, and Repro.cs catches a
+        // general exception that must then be reported. (CA1812 would be a poor probe: the SDK's
+        // conventional InternalsVisibleTo emission makes it treat internals as externally
+        // visible, so it stays silent regardless of severity.)
+        await using var project = await ConsumerProject.CreateAsync(
+            fixture.PackageVersion,
+            fixture.PackageSourceDirectory,
+            sdk: $"Headless.NET.Sdk/{fixture.PackageVersion}",
+            targetFramework: "net10.0",
+            includePackageReference: false,
+            extraProperties: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["TreatWarningsAsErrors"] = "false",
+            },
+            additionalFiles: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                [".editorconfig"] = """
+                root = true
+
+                [*.cs]
+                dotnet_diagnostic.CA1031.severity = warning
+                """,
+                ["Repro.cs"] =
+                    "namespace ConsumerProject; public static class Repro { public static void M() { try { System.Console.WriteLine(); } catch (System.Exception) { } } }",
+            }
+        );
+
+        // --no-incremental: analyzers do not reliably re-run on an incremental build.
+        var result = await project.RunDotNetAsync(
+            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+        );
+
+        Assert.True(result.ExitCode == 0, result.Output);
+        Assert.Contains("CA1031", result.Output, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task should_report_configure_await_warning_when_enforcement_is_enabled()
     {
         await using var project = await ConsumerProject.CreateAsync(

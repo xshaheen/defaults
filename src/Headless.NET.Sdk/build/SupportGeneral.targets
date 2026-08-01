@@ -4,10 +4,17 @@
   <!--
     Re-apply the CI quality gate after the consumer project body. Named quality policy is
     intentionally authoritative; local builds retain consumer-selected warning behavior.
+
+    The LLM-context trigger (SupportDetectLlmContext.props) joins the gate ONLY here, in the
+    targets phase: applying it in SupportGeneral.props would fire before the consumer's
+    Directory.Build.props under MSBuild SDK consumption, making a consumer HeadlessIsLlmContext
+    opt-out impossible to honor. CI detection stays authoritative in both phases.
   -->
   <PropertyGroup
-    Label="CI Quality Gate"
-    Condition=" '$(_HeadlessIsKnownCiEnvironment)' == 'true' or '$(ContinuousIntegrationBuild)' == 'true' "
+    Label="CI / LLM Quality Gate"
+    Condition=" '$(_HeadlessIsKnownCiEnvironment)' == 'true'
+      or '$(ContinuousIntegrationBuild)' == 'true'
+      or '$(HeadlessIsLlmContext)' == 'true' "
   >
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
     <MSBuildTreatWarningsAsErrors>true</MSBuildTreatWarningsAsErrors>
@@ -22,7 +29,9 @@
   <Target
     Name="HeadlessEnableCompilerWarningsAsErrors"
     BeforeTargets="CoreCompile"
-    Condition=" '$(_HeadlessIsKnownCiEnvironment)' == 'true' or '$(ContinuousIntegrationBuild)' == 'true' "
+    Condition=" '$(_HeadlessIsKnownCiEnvironment)' == 'true'
+      or '$(ContinuousIntegrationBuild)' == 'true'
+      or '$(HeadlessIsLlmContext)' == 'true' "
   >
     <PropertyGroup>
       <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

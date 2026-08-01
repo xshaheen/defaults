@@ -1,0 +1,45 @@
+<Project>
+  <!--
+    AI coding-agent detection. When a known agent CLI/editor is driving the build, the warning
+    gate in SupportGeneral.targets treats warnings as errors so the agent fixes them in the same
+    session instead of leaving them for CI. Detection deliberately does NOT set
+    ContinuousIntegrationBuild: agents must not inherit CI-only behavior (SBOM generation, locked
+    restore, coverage defaults).
+
+    Unlike CI provider detection, this signal is consumer-overridable: set
+    <HeadlessIsLlmContext>false</HeadlessIsLlmContext> in Directory.Build.props or the project
+    file to opt out. The gate is applied only in SupportGeneral.targets (after the consumer's
+    props and project body), so an opt-out is honored in every consumption mode.
+  -->
+  <PropertyGroup>
+    <HeadlessIsLlmContext
+      Condition=" '$(HeadlessIsLlmContext)' == ''
+        and ( '$(CLAUDECODE)' != ''
+          or '$(CLAUDE_CODE_ENTRYPOINT)' != ''
+          or '$(CURSOR_EDITOR)' != ''
+          or '$(CURSOR_AI)' != ''
+          or '$(GH_COPILOT_WORKING_DIRECTORY)' != ''
+          or '$(COPILOT_CLI)' != ''
+          or '$(COPILOT_AGENT)' != ''
+          or '$(CODEX_CLI)' != ''
+          or '$(CODEX_SANDBOX)' != ''
+          or '$(AMP_HOME)' != ''
+          or '$(QWEN_CODE)' != ''
+          or '$(OPENCODE_AI)' != ''
+          or '$(ZED_ENVIRONMENT)' != ''
+          or '$(ZED_TERM)' != ''
+          or '$(GOOSE_TERMINAL)' != ''
+          or '$(CLINE_TASK_ID)' != ''
+          or '$(ROO_CODE_TASK_ID)' != ''
+          or '$(WINDSURF_SESSION)' != ''
+          or '$(GEMINI_CLI)' == '1' or '$(GEMINI_CLI)' == 'true' or '$(GEMINI_CLI)' == 'yes' or '$(GEMINI_CLI)' == 'on'
+          or '$(GITHUB_COPILOT_CLI_MODE)' == '1' or '$(GITHUB_COPILOT_CLI_MODE)' == 'true' or '$(GITHUB_COPILOT_CLI_MODE)' == 'yes' or '$(GITHUB_COPILOT_CLI_MODE)' == 'on'
+          or '$(DROID_CLI)' == '1' or '$(DROID_CLI)' == 'true' or '$(DROID_CLI)' == 'yes' or '$(DROID_CLI)' == 'on'
+          or '$(KIMI_CLI)' == '1' or '$(KIMI_CLI)' == 'true' or '$(KIMI_CLI)' == 'yes' or '$(KIMI_CLI)' == 'on'
+          or '$(AGENT_CLI)' == '1' or '$(AGENT_CLI)' == 'true' or '$(AGENT_CLI)' == 'yes' or '$(AGENT_CLI)' == 'on'
+          or '$(OR_APP_NAME)' == 'Aider' or '$(OR_APP_NAME)' == 'plandex' or '$(OR_APP_NAME)' == 'OpenHands' ) "
+      >true</HeadlessIsLlmContext
+    >
+    <HeadlessIsLlmContext Condition=" '$(HeadlessIsLlmContext)' == '' ">false</HeadlessIsLlmContext>
+  </PropertyGroup>
+</Project>

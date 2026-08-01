@@ -80,7 +80,8 @@ internal sealed class ConsumerProject : IAsyncDisposable
         bool useCentralPackageManagement = false,
         IReadOnlyDictionary<string, string>? extraProperties = null,
         IReadOnlyDictionary<string, string>? extraPackageReferences = null,
-        IReadOnlyDictionary<string, string>? additionalFiles = null
+        IReadOnlyDictionary<string, string>? additionalFiles = null,
+        IReadOnlyDictionary<string, string>? environmentOverrides = null
     )
     {
         var rootDirectory = Path.Combine(Path.GetTempPath(), "Headless.NET.Sdk.Consumer", Guid.NewGuid().ToString("N"));
@@ -97,6 +98,15 @@ internal sealed class ConsumerProject : IAsyncDisposable
         Directory.CreateDirectory(rootDirectory);
 
         var project = new ConsumerProject(rootDirectory, packageVersion, packageSourceDirectory);
+
+        if (environmentOverrides is not null)
+        {
+            foreach (var (name, value) in environmentOverrides)
+            {
+                project.environment[name] = value;
+            }
+        }
+
         var cancellationToken = TestContext.Current.CancellationToken;
 
         await File.WriteAllTextAsync(
@@ -368,7 +378,7 @@ public sealed class Class1;
                 </PropertyGroup>
                 <WriteLinesToFile
                   File="$(MSBuildProjectDirectory)/headless-properties.txt"
-                  Lines="TargetFramework=$(TargetFramework);RollForward=$(RollForward);PackAsTool=$(PackAsTool);HeadlessSdkName=$(HeadlessSdkName);HeadlessSdkProjectType=$(HeadlessSdkProjectType);IsTestHarnessProject=$(IsTestHarnessProject);IsTestProject=$(IsTestProject);IsTestingPlatformApplication=$(IsTestingPlatformApplication);GenerateRuntimeConfigurationFiles=$(GenerateRuntimeConfigurationFiles);GenerateSBOM=$(GenerateSBOM);IsPackable=$(IsPackable);EnablePackageValidation=$(EnablePackageValidation);NoWarn=$(_HeadlessEvaluatedNoWarn);EditorConfigFiles=$(_HeadlessEvaluatedEditorConfigFiles);AdditionalFiles=$(_HeadlessEvaluatedAdditionalFiles);NoneItems=$(_HeadlessEvaluatedNoneItems);PackageReferences=$(_HeadlessEvaluatedPackageReferences);MSBuildTreatWarningsAsErrors=$(MSBuildTreatWarningsAsErrors);RestoreLockedMode=$(RestoreLockedMode);HeadlessEmitInternalsVisibleToAttributes=$(HeadlessEmitInternalsVisibleToAttributes);InternalsVisibleTo=$(_HeadlessEvaluatedInternalsVisibleTo);TestingPlatformCommandLineArguments=$(TestingPlatformCommandLineArguments);PackageTags=$(PackageTags);PublishRepositoryUrl=$(PublishRepositoryUrl);RepositoryType=$(RepositoryType);RepositoryBranch=$(RepositoryBranch);IncludeSymbols=$(IncludeSymbols);SymbolPackageFormat=$(SymbolPackageFormat);DebugType=$(DebugType);HeadlessSymbolFormat=$(HeadlessSymbolFormat);Copyright=$(Copyright);RuntimeHostConfigurationOptions=$(_HeadlessEvaluatedRuntimeHostOptions);EnableSdkContainerSupport=$(EnableSdkContainerSupport);ContainerRegistry=$(ContainerRegistry);ContainerRepository=$(ContainerRepository);ContainerImageTagsMainVersionPrefix=$(ContainerImageTagsMainVersionPrefix);ContainerImageTagsIncludeLatest=$(ContainerImageTagsIncludeLatest);ContainerImageTags=$(_HeadlessEvaluatedContainerImageTags)"
+                  Lines="TargetFramework=$(TargetFramework);RollForward=$(RollForward);PackAsTool=$(PackAsTool);HeadlessSdkName=$(HeadlessSdkName);HeadlessSdkProjectType=$(HeadlessSdkProjectType);HeadlessIsLlmContext=$(HeadlessIsLlmContext);ContinuousIntegrationBuild=$(ContinuousIntegrationBuild);CodeAnalysisTreatWarningsAsErrors=$(CodeAnalysisTreatWarningsAsErrors);IsTestHarnessProject=$(IsTestHarnessProject);IsTestProject=$(IsTestProject);IsTestingPlatformApplication=$(IsTestingPlatformApplication);GenerateRuntimeConfigurationFiles=$(GenerateRuntimeConfigurationFiles);GenerateSBOM=$(GenerateSBOM);IsPackable=$(IsPackable);EnablePackageValidation=$(EnablePackageValidation);NoWarn=$(_HeadlessEvaluatedNoWarn);EditorConfigFiles=$(_HeadlessEvaluatedEditorConfigFiles);AdditionalFiles=$(_HeadlessEvaluatedAdditionalFiles);NoneItems=$(_HeadlessEvaluatedNoneItems);PackageReferences=$(_HeadlessEvaluatedPackageReferences);MSBuildTreatWarningsAsErrors=$(MSBuildTreatWarningsAsErrors);RestoreLockedMode=$(RestoreLockedMode);HeadlessEmitInternalsVisibleToAttributes=$(HeadlessEmitInternalsVisibleToAttributes);InternalsVisibleTo=$(_HeadlessEvaluatedInternalsVisibleTo);TestingPlatformCommandLineArguments=$(TestingPlatformCommandLineArguments);PackageTags=$(PackageTags);PublishRepositoryUrl=$(PublishRepositoryUrl);RepositoryType=$(RepositoryType);RepositoryBranch=$(RepositoryBranch);IncludeSymbols=$(IncludeSymbols);SymbolPackageFormat=$(SymbolPackageFormat);DebugType=$(DebugType);HeadlessSymbolFormat=$(HeadlessSymbolFormat);Copyright=$(Copyright);RuntimeHostConfigurationOptions=$(_HeadlessEvaluatedRuntimeHostOptions);EnableSdkContainerSupport=$(EnableSdkContainerSupport);ContainerRegistry=$(ContainerRegistry);ContainerRepository=$(ContainerRepository);ContainerImageTagsMainVersionPrefix=$(ContainerImageTagsMainVersionPrefix);ContainerImageTagsIncludeLatest=$(ContainerImageTagsIncludeLatest);ContainerImageTags=$(_HeadlessEvaluatedContainerImageTags)"
                   Overwrite="true"
                 />
               </Target>

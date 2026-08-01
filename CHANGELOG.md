@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- AI coding-agent detection (`HeadlessIsLlmContext`, auto-detected from Claude Code, Codex, Cursor, Copilot, Gemini, Windsurf, Zed, Cline, Aider, and other agent environment variables): agent-driven builds treat compiler, analyzer, nullable, and MSBuild warnings as errors without inheriting CI-only behavior (SBOM, locked restore, coverage). Consumer-overridable with `HeadlessIsLlmContext=false`.
+
 ### Changed
 
 - Analyzer-rule disables moved from `$(NoWarn)` to the shipped editorconfigs as `severity = none`, so a consumer `.editorconfig` can re-enable any baseline-disabled rule per project (`/nowarn` cannot be overridden downstream). `$(NoWarn)` now carries only diagnostics analyzer config cannot express: `CS1712`, `NU5104`, the `CS1573`/`CS1591` documentation pair, and the Aspire-host `CA1707` relaxation. Test-project relaxations moved into `Headless.NET.Sdk.Tests.editorconfig`, and `CA2007` enforcement is now expressed purely through the baseline `none` plus the `HeadlessEnforceConfigureAwait` overlay.

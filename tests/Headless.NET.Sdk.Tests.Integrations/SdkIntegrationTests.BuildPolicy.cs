@@ -106,6 +106,99 @@ class Foo { }
     }
 
     [Fact]
+    public async Task should_not_detect_llm_context_by_default()
+    {
+        // The harness neutralizes every agent variable (this suite itself usually runs under one),
+        // so a plain consumer build must see no LLM context and no warning escalation.
+        await using var project = await ConsumerProject.CreateAsync(
+            fixture.PackageVersion,
+            fixture.PackageSourceDirectory,
+            sdk: $"Headless.NET.Sdk/{fixture.PackageVersion}",
+            includePackageReference: false
+        );
+
+        var properties = await project.EvaluateHeadlessPropertiesAsync();
+
+        Assert.Equal("false", properties["HeadlessIsLlmContext"]);
+        Assert.Empty(properties["MSBuildTreatWarningsAsErrors"]);
+    }
+
+    [Fact]
+    public async Task should_enable_warnings_as_errors_for_llm_context_without_ci_side_effects()
+    {
+        // An AI coding agent driving the build gets the warning gate so it fixes warnings in the
+        // same session - but must NOT inherit CI-only behavior (SBOM, locked restore).
+        await using var project = await ConsumerProject.CreateAsync(
+            fixture.PackageVersion,
+            fixture.PackageSourceDirectory,
+            sdk: $"Headless.NET.Sdk/{fixture.PackageVersion}",
+            includePackageReference: false,
+            environmentOverrides: new Dictionary<string, string>(StringComparer.Ordinal) { ["CLAUDECODE"] = "1" }
+        );
+
+        var properties = await project.EvaluateHeadlessPropertiesAsync();
+
+        Assert.Equal("true", properties["HeadlessIsLlmContext"]);
+        Assert.Equal("true", properties["MSBuildTreatWarningsAsErrors"]);
+        Assert.Equal("true", properties["CodeAnalysisTreatWarningsAsErrors"]);
+        Assert.NotEqual("true", properties["ContinuousIntegrationBuild"]);
+        Assert.NotEqual("true", properties["GenerateSBOM"]);
+        Assert.Empty(properties["RestoreLockedMode"]);
+    }
+
+    [Fact]
+    public async Task should_respect_consumer_llm_context_opt_out()
+    {
+        await using var project = await ConsumerProject.CreateAsync(
+            fixture.PackageVersion,
+            fixture.PackageSourceDirectory,
+            sdk: $"Headless.NET.Sdk/{fixture.PackageVersion}",
+            includePackageReference: false,
+            extraProperties: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["HeadlessIsLlmContext"] = "false",
+            },
+            environmentOverrides: new Dictionary<string, string>(StringComparer.Ordinal) { ["CLAUDECODE"] = "1" }
+        );
+
+        var properties = await project.EvaluateHeadlessPropertiesAsync();
+
+        Assert.Equal("false", properties["HeadlessIsLlmContext"]);
+        Assert.Empty(properties["MSBuildTreatWarningsAsErrors"]);
+    }
+
+    [Fact]
+    public async Task should_fail_build_on_warning_in_llm_context()
+    {
+        // CA2007 (via opt-in enforcement) is a deterministic warning source; under an agent
+        // session it must escalate to an error and fail the build.
+        await using var project = await ConsumerProject.CreateAsync(
+            fixture.PackageVersion,
+            fixture.PackageSourceDirectory,
+            sdk: $"Headless.NET.Sdk/{fixture.PackageVersion}",
+            targetFramework: "net10.0",
+            includePackageReference: false,
+            extraProperties: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["HeadlessEnforceConfigureAwait"] = "true",
+            },
+            environmentOverrides: new Dictionary<string, string>(StringComparer.Ordinal) { ["CLAUDECODE"] = "1" },
+            additionalFiles: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["Repro.cs"] =
+                    "namespace ConsumerProject; public static class Repro { public static async System.Threading.Tasks.Task M() => await System.Threading.Tasks.Task.Delay(1); }",
+            }
+        );
+
+        var result = await project.RunDotNetAsync(
+            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+        );
+
+        Assert.NotEqual(0, result.ExitCode);
+        Assert.Contains("error CA2007", result.Output, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task should_allow_consumer_editorconfig_to_reenable_baseline_disabled_rules()
     {
         // The baseline disables ship as editorconfig severity = none (global_level 0), so a

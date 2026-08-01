@@ -32,6 +32,7 @@ public sealed class PackageContractTests(HeadlessSdkPackageFixture fixture)
         "build/SupportCopyright.targets",
         "build/SupportDetectContinuousIntegration.props",
         "build/SupportDetectContinuousIntegration.targets",
+        "build/SupportDetectLlmContext.props",
         "build/SupportEmbedBinlog.targets",
         "build/SupportGeneral.props",
         "build/SupportGeneral.targets",

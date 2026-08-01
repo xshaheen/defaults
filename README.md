@@ -283,6 +283,12 @@ than a confirmed vulnerability. NuGet audit is always enabled with `NuGetAuditMo
 
 Locked restore is enforced on CI only when the project has opted in by committing `packages.lock.json`, or when `NuGetLockFilePath` identifies an existing lock file. Projects without a lock file are restored normally.
 
+### AI coding-agent builds
+
+Headless detects common AI coding-agent environments (Claude Code, Codex CLI, Cursor, Copilot CLI/agent, Gemini CLI, Windsurf, Zed, Cline, Aider, and others) and treats warnings as errors for those sessions, so an agent fixes warnings in the same session instead of leaving them for CI. Agent detection deliberately does **not** activate CI behavior: no SBOM generation, no locked restore, no coverage defaults.
+
+Unlike CI detection, this signal is consumer-overridable: set `HeadlessIsLlmContext=false` in `Directory.Build.props` or the project file to opt out, or `HeadlessIsLlmContext=true` to force the gate on.
+
 ## Test SDK contract
 
 `Headless.NET.Sdk.Test` is Microsoft Testing Platform only. It defaults test hosts to `OutputType=Exe`, `IsTestProject=true`, `IsPackable=false`, and `IsPublishable=false`, and supplies restore-visible MTP extensions for crash dumps, hang dumps, hot reload, retry, TRX reporting, and coverage. Default execution includes TRX output, crash and hang dumps, and a minimum expected test count; coverage is enabled on CI.

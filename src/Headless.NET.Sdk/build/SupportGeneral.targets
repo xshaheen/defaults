@@ -38,6 +38,18 @@
     </PropertyGroup>
   </Target>
 
+  <!--
+    Mandatory quality baseline, re-asserted after the consumer project body so both consumption
+    modes behave identically (analyzer execution properties get the same treatment in
+    SupportMandatoryAnalyzers.targets). EffectiveAnalysisLevel is computed later, in
+    Microsoft.NET.Sdk.Analyzers.targets, so this re-assert is authoritative for the mapping.
+  -->
+  <PropertyGroup Label="Mandatory Baseline">
+    <Deterministic>true</Deterministic>
+    <AnalysisLevel>latest-all</AnalysisLevel>
+    <AnalysisMode>All</AnalysisMode>
+  </PropertyGroup>
+
   <PropertyGroup Label="Conventional Test Friend Assemblies">
     <HeadlessEmitInternalsVisibleToAttributes Condition=" '$(HeadlessEmitInternalsVisibleToAttributes)' == '' "
       >true</HeadlessEmitInternalsVisibleToAttributes

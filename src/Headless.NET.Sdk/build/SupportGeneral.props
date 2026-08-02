@@ -26,14 +26,34 @@
     <DefaultItemExcludes>$(DefaultItemExcludes);**/*.lscache</DefaultItemExcludes>
 
     <LangVersion Condition="'$(LangVersion)' == ''">latest</LangVersion>
-    <WarningLevel>9999</WarningLevel>
     <Nullable Condition="'$(Nullable)' == ''">enable</Nullable>
     <ImplicitUsings Condition="'$(ImplicitUsings)' == ''">enable</ImplicitUsings>
 
     <GenerateDocumentationFile Condition="'$(GenerateDocumentationFile)' == ''">true</GenerateDocumentationFile>
 
-    <Features>strict</Features>
+    <!--
+      Advisory defaults: guarded so a consumer Directory.Build.props value wins in BOTH
+      consumption modes. Under MSBuild SDK consumption this file evaluates before
+      Directory.Build.props (last write would win anyway); under PackageReference consumption it
+      evaluates after, where an unconditional assignment would silently override the consumer.
+    -->
+    <WarningLevel Condition="'$(WarningLevel)' == ''">9999</WarningLevel>
+    <Features Condition="'$(Features)' == ''">strict</Features>
+    <ReportAnalyzer Condition="'$(ReportAnalyzer)' == ''">true</ReportAnalyzer>
+    <SuppressNETCoreSdkPreviewMessage Condition="'$(SuppressNETCoreSdkPreviewMessage)' == ''"
+      >false</SuppressNETCoreSdkPreviewMessage
+    >
+    <CheckEolTargetFramework Condition="'$(CheckEolTargetFramework)' == ''">true</CheckEolTargetFramework>
+    <SuppressTfmSupportBuildWarnings Condition="'$(SuppressTfmSupportBuildWarnings)' == ''"
+      >false</SuppressTfmSupportBuildWarnings
+    >
 
+    <!--
+      Mandatory quality baseline: unconditional here AND re-asserted after the consumer project
+      body (SupportGeneral.targets / SupportMandatoryAnalyzers.targets), so both consumption modes
+      behave identically. EffectiveAnalysisLevel is computed in Microsoft.NET.Sdk.Analyzers.targets,
+      which evaluates after the Headless targets re-assert, so the re-assert is authoritative.
+    -->
     <AnalysisLevel>latest-all</AnalysisLevel>
     <AnalysisMode>All</AnalysisMode>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
@@ -41,13 +61,9 @@
       >false</CodeAnalysisTreatWarningsAsErrors
     >
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <ReportAnalyzer>true</ReportAnalyzer>
     <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
     <_SkipUpgradeNetAnalyzersNuGetWarning>true</_SkipUpgradeNetAnalyzersNuGetWarning>
-    <SuppressNETCoreSdkPreviewMessage>false</SuppressNETCoreSdkPreviewMessage>
-    <CheckEolTargetFramework>true</CheckEolTargetFramework>
-    <SuppressTfmSupportBuildWarnings>false</SuppressTfmSupportBuildWarnings>
 
     <AccelerateBuildsInVisualStudio Condition="'$(AccelerateBuildsInVisualStudio)' == ''"
       >true</AccelerateBuildsInVisualStudio

@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 
+- Advisory defaults (`WarningLevel`, `Features`, `ReportAnalyzer`, `SuppressNETCoreSdkPreviewMessage`, `CheckEolTargetFramework`, `SuppressTfmSupportBuildWarnings`) are now guarded so a consumer `Directory.Build.props` value wins under both MSBuild-SDK and `PackageReference` consumption. The mandatory baseline (`Deterministic`, `AnalysisLevel`, `AnalysisMode`, analyzer execution) is re-asserted after the project body, so both consumption modes now behave identically for it as well.
 - Analyzer-rule disables moved from `$(NoWarn)` to the shipped editorconfigs as `severity = none`, so a consumer `.editorconfig` can re-enable any baseline-disabled rule per project (`/nowarn` cannot be overridden downstream). `$(NoWarn)` now carries only diagnostics analyzer config cannot express: `CS1712`, `NU5104`, the `CS1573`/`CS1591` documentation pair, and the Aspire-host `CA1707` relaxation. Test-project relaxations moved into `Headless.NET.Sdk.Tests.editorconfig`, and `CA2007` enforcement is now expressed purely through the baseline `none` plus the `HeadlessEnforceConfigureAwait` overlay.
 
 - Updated the mandatory analyzer baseline: `Meziantou.Analyzer` 3.0.75 → 3.0.125, `Microsoft.CodeAnalysis.BannedApiAnalyzers` 4.14.0 → 5.6.0, and `Microsoft.VisualStudio.Threading.Analyzers` 17.14.15 → 18.7.23. The remaining six analyzer packages were already at their latest published versions.

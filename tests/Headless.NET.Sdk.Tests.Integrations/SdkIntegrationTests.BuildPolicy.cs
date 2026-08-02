@@ -105,6 +105,66 @@ class Foo { }
         Assert.DoesNotContain("CA2007", result.Output, StringComparison.Ordinal);
     }
 
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task should_honor_directory_build_props_overrides_for_advisory_defaults(bool useSdkConsumption)
+    {
+        // Advisory defaults (WarningLevel, Features, ...) are ==''-guarded so a consumer
+        // Directory.Build.props value wins under BOTH consumption modes. Under PackageReference
+        // consumption the Headless props evaluate AFTER Directory.Build.props, where an
+        // unconditional assignment would silently override the consumer.
+        await using var project = await ConsumerProject.CreateAsync(
+            fixture.PackageVersion,
+            fixture.PackageSourceDirectory,
+            sdk: useSdkConsumption ? $"Headless.NET.Sdk/{fixture.PackageVersion}" : "Microsoft.NET.Sdk",
+            includePackageReference: !useSdkConsumption,
+            additionalFiles: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["Directory.Build.props"] = """
+                <Project>
+                  <PropertyGroup>
+                    <WarningLevel>4</WarningLevel>
+                    <Features>peverify-compat</Features>
+                  </PropertyGroup>
+                </Project>
+                """,
+            }
+        );
+
+        var properties = await project.EvaluateHeadlessPropertiesAsync();
+
+        Assert.Equal("4", properties["WarningLevel"]);
+        Assert.Equal("peverify-compat", properties["Features"]);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task should_keep_mandatory_baseline_authoritative_over_project_body(bool useSdkConsumption)
+    {
+        // Deterministic and the analysis level/mode are mandatory policy: a project-body override
+        // is re-asserted away after evaluation in both consumption modes.
+        await using var project = await ConsumerProject.CreateAsync(
+            fixture.PackageVersion,
+            fixture.PackageSourceDirectory,
+            sdk: useSdkConsumption ? $"Headless.NET.Sdk/{fixture.PackageVersion}" : "Microsoft.NET.Sdk",
+            includePackageReference: !useSdkConsumption,
+            extraProperties: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["Deterministic"] = "false",
+                ["AnalysisLevel"] = "latest-minimum",
+                ["AnalysisMode"] = "Minimum",
+            }
+        );
+
+        var properties = await project.EvaluateHeadlessPropertiesAsync();
+
+        Assert.Equal("true", properties["Deterministic"]);
+        Assert.Equal("latest-all", properties["AnalysisLevel"]);
+        Assert.Equal("All", properties["AnalysisMode"]);
+    }
+
     [Fact]
     public async Task should_not_detect_llm_context_by_default()
     {

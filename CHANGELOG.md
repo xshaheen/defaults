@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [0.2.0] - 2026-08-02
 
 ### Breaking Changes
 
@@ -27,6 +27,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- `GenerateSBOM=true` now resolves the SBOM tooling from the restore-resolved package location under MSBuild SDK consumption, fixing packs when `Microsoft.Sbom.Targets` is satisfied from a NuGet fallback folder or shared cache. Under `PackageReference` consumption, restore evaluation cannot see package-delivered references (`ExcludeRestorePackageImports`), so such consumers must restore the tooling into their local packages folder before packing; this limitation is now documented in the shipped targets.
 - Integration-test consumer restores now use the host global packages folder as a read-only NuGet fallback and no longer pass `RestoreIgnoreFailedSources=true`: restores resolve without network access in the common case, and genuine restore failures surface loudly instead of being masked.
 - The shipped packaging targets no longer inject the SDK author's tag into consumer `PackageTags`; consumer tags pass through untouched.
 - Platform contract tests now report as skipped instead of passed when running on a non-matching operating system.

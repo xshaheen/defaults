@@ -7,15 +7,14 @@ All notable changes to this project will be documented in this file.
 ### Added
 
 - AI coding-agent detection (`HeadlessIsLlmContext`, auto-detected from Claude Code, Codex, Cursor, Copilot, Gemini, Windsurf, Zed, Cline, Aider, and other agent environment variables): agent-driven builds treat compiler, analyzer, nullable, and MSBuild warnings as errors without inheriting CI-only behavior (SBOM, locked restore, coverage). Consumer-overridable with `HeadlessIsLlmContext=false`.
+- Analyzer rule-coverage gate: a repository test reflection-loads the nine mandatory analyzer packages, enumerates every supported diagnostic, and fails when an analyzer version bump introduces a rule that is neither tuned in a shipped editorconfig nor recorded in the reviewed package-defaults baseline — new rules now require an explicit severity decision instead of arriving silently.
 
 ### Changed
 
 - Advisory defaults (`WarningLevel`, `Features`, `ReportAnalyzer`, `SuppressNETCoreSdkPreviewMessage`, `CheckEolTargetFramework`, `SuppressTfmSupportBuildWarnings`) are now guarded so a consumer `Directory.Build.props` value wins under both MSBuild-SDK and `PackageReference` consumption. The mandatory baseline (`Deterministic`, `AnalysisLevel`, `AnalysisMode`, analyzer execution) is re-asserted after the project body, so both consumption modes now behave identically for it as well.
 - Analyzer-rule disables moved from `$(NoWarn)` to the shipped editorconfigs as `severity = none`, so a consumer `.editorconfig` can re-enable any baseline-disabled rule per project (`/nowarn` cannot be overridden downstream). `$(NoWarn)` now carries only diagnostics analyzer config cannot express: `CS1712`, `NU5104`, the `CS1573`/`CS1591` documentation pair, and the Aspire-host `CA1707` relaxation. Test-project relaxations moved into `Headless.NET.Sdk.Tests.editorconfig`, and `CA2007` enforcement is now expressed purely through the baseline `none` plus the `HeadlessEnforceConfigureAwait` overlay.
-
 - Updated the mandatory analyzer baseline: `Meziantou.Analyzer` 3.0.75 → 3.0.125, `Microsoft.CodeAnalysis.BannedApiAnalyzers` 4.14.0 → 5.6.0, and `Microsoft.VisualStudio.Threading.Analyzers` 17.14.15 → 18.7.23. The remaining six analyzer packages were already at their latest published versions.
 - Analyzer versions are now single-sourced through `Directory.Packages.props` and covered by the Dependabot anchor project, so analyzer bump PRs open automatically; `VersionConsistencyTests` enforces consistency between the central pins, the shipped version properties, and the nuspec dependency ranges.
-
 - The `embedded` and `snupkg` symbol formats now default `EmbedUntrackedSources=true` so untracked sources (source-generator output, generated files) stay debuggable from the PDB; SourceLink cannot fetch files the repository does not track. Consumer-set values win, and `HeadlessSymbolFormat=none` stays on Microsoft defaults.
 
 ### Fixed

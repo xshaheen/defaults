@@ -24,5 +24,13 @@
     <!-- This plain Microsoft.NET.Sdk test harness needs the TRX extension used by CI and publish. -->
     <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" />
     <PackageReference Include="MSBuild.StructuredLogger" />
+    <!--
+      AnalyzerRuleCoverageTests reflection-loads the nine mandatory analyzer packages to
+      enumerate SupportedDiagnostics; Workspaces brings the Roslyn assemblies their
+      analyzer/workspace references resolve against.
+    -->
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+    <!-- Satisfies the analyzer packages' bundled workspace-layer references during reflection loading. -->
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" />
   </ItemGroup>
 </Project>

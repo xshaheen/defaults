@@ -30,7 +30,7 @@ public sealed partial class SdkIntegrationTests
         );
 
         var result = await project.RunDotNetAsync(
-            $"restore {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"restore {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -68,7 +68,7 @@ class Foo { }
         );
 
         var result = await project.BuildAndCollectDiagnosticsAsync(
-            $"-p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"-p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -98,7 +98,7 @@ class Foo { }
         // --no-incremental: analyzers do not reliably re-run on an incremental build, so force a full
         // build to make the (absent) CA2007 diagnostic deterministic.
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -251,7 +251,7 @@ class Foo { }
         );
 
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.NotEqual(0, result.ExitCode);
@@ -292,7 +292,7 @@ class Foo { }
 
         // --no-incremental: analyzers do not reliably re-run on an incremental build.
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -325,7 +325,7 @@ class Foo { }
         // --no-incremental: analyzers do not reliably re-run on an incremental build, so force a full
         // build to make the CA2007 diagnostic deterministic.
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -438,7 +438,7 @@ class Foo { }
         );
 
         var seedResult = await project.RunDotNetAsync(
-            $"restore {Quote(project.ProjectFilePath)} -p:CI=true -p:RestorePackagesWithLockFile=true -p:RestoreLockedMode=false -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"restore {Quote(project.ProjectFilePath)} -p:CI=true -p:RestorePackagesWithLockFile=true -p:RestoreLockedMode=false -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
         Assert.True(seedResult.ExitCode == 0, seedResult.Output);
 
@@ -459,7 +459,7 @@ class Foo { }
         );
 
         var lockedResult = await project.RunDotNetAsync(
-            $"restore {Quote(project.ProjectFilePath)} -p:CI=true -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"restore {Quote(project.ProjectFilePath)} -p:CI=true -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.NotEqual(0, lockedResult.ExitCode);
@@ -478,7 +478,7 @@ class Foo { }
         );
 
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.NotEqual(0, result.ExitCode);
@@ -506,7 +506,7 @@ public static class JsonConsumer
         );
 
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);

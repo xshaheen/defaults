@@ -10,7 +10,25 @@
     <_HeadlessMicrosoftSbomTargetsVersionNormalized
       >$(_HeadlessMicrosoftSbomTargetsVersion.Replace('[', '').Replace(']', ''))</_HeadlessMicrosoftSbomTargetsVersionNormalized
     >
+    <!--
+      Prefer the restore-resolved location (GeneratePathProperty on the reference): it is correct
+      when the package is satisfied from a NuGet fallback folder or shared cache, where nothing
+      exists under NuGetPackageRoot. The NuGetPackageRoot guess remains as a fallback for
+      evaluations before the generated props exist.
+
+      Known limitation: under PackageReference consumption, restore evaluates with
+      ExcludeRestorePackageImports=true and never sees this package-delivered reference, so the
+      path property is emitted only under MSBuild SDK consumption (where these props arrive via
+      SDK resolution). PackageReference consumers whose packages folder does not physically
+      contain Microsoft.Sbom.Targets (fallback folders, shared caches) must restore it into the
+      local folder before packing with GenerateSBOM=true.
+    -->
     <_HeadlessMicrosoftSbomTargetsRoot
+      Condition="'$(PkgMicrosoft_Sbom_Targets)' != ''"
+      >$([MSBuild]::EnsureTrailingSlash('$(PkgMicrosoft_Sbom_Targets)'))</_HeadlessMicrosoftSbomTargetsRoot
+    >
+    <_HeadlessMicrosoftSbomTargetsRoot
+      Condition="'$(_HeadlessMicrosoftSbomTargetsRoot)' == ''"
       >$([MSBuild]::EnsureTrailingSlash('$(NuGetPackageRoot)'))microsoft.sbom.targets/$(_HeadlessMicrosoftSbomTargetsVersionNormalized)/</_HeadlessMicrosoftSbomTargetsRoot
     >
     <_HeadlessMicrosoftSbomTargetsPath
@@ -35,6 +53,7 @@
       PrivateAssets="all"
       IncludeAssets="none"
       ExcludeAssets=""
+      GeneratePathProperty="true"
     />
   </ItemGroup>
 

@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
+- Integration-test consumer restores now use the host global packages folder as a read-only NuGet fallback and no longer pass `RestoreIgnoreFailedSources=true`: restores resolve without network access in the common case, and genuine restore failures surface loudly instead of being masked.
 - The shipped packaging targets no longer inject the SDK author's tag into consumer `PackageTags`; consumer tags pass through untouched.
 - Platform contract tests now report as skipped instead of passed when running on a non-matching operating system.
 

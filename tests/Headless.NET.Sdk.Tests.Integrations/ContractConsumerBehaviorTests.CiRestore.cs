@@ -43,14 +43,14 @@ public sealed partial class ContractConsumerBehaviorTests
         );
 
         var local = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
         Assert.True(local.ExitCode == 0, local.Output);
         Assert.Contains("CS1030", local.Output, StringComparison.Ordinal);
         Assert.Contains("warning HEADLESS0001", local.Output, StringComparison.OrdinalIgnoreCase);
 
         var ci = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:GITHUB_ACTIONS=true -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:GITHUB_ACTIONS=true -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.NotEqual(0, ci.ExitCode);
@@ -124,7 +124,7 @@ public sealed partial class ContractConsumerBehaviorTests
         );
 
         var restore = await project.RunDotNetAsync(
-            $"restore {Quote(project.ProjectFilePath)} -p:ContinuousIntegrationBuild=true -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"restore {Quote(project.ProjectFilePath)} -p:ContinuousIntegrationBuild=true -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(restore.ExitCode == 0, restore.Output);
@@ -148,7 +148,7 @@ public sealed partial class ContractConsumerBehaviorTests
         Assert.False(File.Exists(Path.Combine(project.RootDirectory, "packages.lock.json")));
 
         var seed = await project.RunDotNetAsync(
-            $"restore {Quote(project.ProjectFilePath)} -p:RestorePackagesWithLockFile=true -p:RestoreLockedMode=false -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"restore {Quote(project.ProjectFilePath)} -p:RestorePackagesWithLockFile=true -p:RestoreLockedMode=false -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
         Assert.True(seed.ExitCode == 0, seed.Output);
         Assert.True(File.Exists(Path.Combine(project.RootDirectory, "packages.lock.json")));

@@ -60,9 +60,7 @@ public sealed class WindowsPlatformContractTests(HeadlessSdkPackageFixture fixtu
             additionalFiles: additionalFiles
         );
 
-        var result = await project.BuildWithBinLogAsync(
-            $"-p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
-        );
+        var result = await project.BuildWithBinLogAsync($"-p:RestoreConfigFile={Quote(project.NuGetConfigPath)}");
 
         Assert.True(result.ExitCode == 0, result.Output);
         TestContext.Current.AddAttachment(
@@ -88,9 +86,7 @@ public sealed class MacOsPlatformContractTests(HeadlessSdkPackageFixture fixture
             includePackageReference: false
         );
 
-        var result = await project.BuildWithBinLogAsync(
-            $"-p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
-        );
+        var result = await project.BuildWithBinLogAsync($"-p:RestoreConfigFile={Quote(project.NuGetConfigPath)}");
 
         Assert.True(result.ExitCode == 0, result.Output);
         TestContext.Current.AddAttachment(

@@ -47,7 +47,7 @@ public sealed partial class ContractConsumerBehaviorTests
         );
 
         var result = await project.RunDotNetAsync(
-            $"msbuild {Quote(project.ProjectFilePath)} -restore -graphBuild -t:WriteHeadlessStaticGraphContract -p:RestoreUseStaticGraphEvaluation=true -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true -nologo"
+            $"msbuild {Quote(project.ProjectFilePath)} -restore -graphBuild -t:WriteHeadlessStaticGraphContract -p:RestoreUseStaticGraphEvaluation=true -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -nologo"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -93,7 +93,7 @@ public sealed partial class ContractConsumerBehaviorTests
         );
 
         var result = await project.RunDotNetAsync(
-            $"msbuild {Quote(project.ProjectFilePath)} -restore -t:WriteHeadlessDesignTimeContract -p:DesignTimeBuild=true -p:BuildingProject=false -p:SkipCompilerExecution=true -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true -nologo"
+            $"msbuild {Quote(project.ProjectFilePath)} -restore -t:WriteHeadlessDesignTimeContract -p:DesignTimeBuild=true -p:BuildingProject=false -p:SkipCompilerExecution=true -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -nologo"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -156,7 +156,7 @@ public sealed partial class ContractConsumerBehaviorTests
         );
 
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} --no-incremental -m:1 -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(project.ProjectFilePath)} --no-incremental -m:1 -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -211,7 +211,7 @@ public sealed partial class ContractConsumerBehaviorTests
         );
 
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} --no-incremental -m:1 -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(project.ProjectFilePath)} --no-incremental -m:1 -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -265,7 +265,7 @@ public sealed partial class ContractConsumerBehaviorTests
             ? "-p:DesignTimeBuild=true -p:BuildingProject=false -p:SkipCompilerExecution=true"
             : "-graphBuild -p:RestoreUseStaticGraphEvaluation=true";
         var result = await project.RunDotNetAsync(
-            $"msbuild {Quote(project.ProjectFilePath)} -restore -t:WritePackageReferenceEvaluationContract {modeArguments} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true -nologo"
+            $"msbuild {Quote(project.ProjectFilePath)} -restore -t:WritePackageReferenceEvaluationContract {modeArguments} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -nologo"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -298,7 +298,7 @@ public sealed partial class ContractConsumerBehaviorTests
         );
 
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} --no-incremental -m:1 -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(project.ProjectFilePath)} --no-incremental -m:1 -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);

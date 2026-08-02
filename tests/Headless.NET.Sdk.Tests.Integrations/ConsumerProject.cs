@@ -81,7 +81,8 @@ internal sealed class ConsumerProject : IAsyncDisposable
         IReadOnlyDictionary<string, string>? extraProperties = null,
         IReadOnlyDictionary<string, string>? extraPackageReferences = null,
         IReadOnlyDictionary<string, string>? additionalFiles = null,
-        IReadOnlyDictionary<string, string>? environmentOverrides = null
+        IReadOnlyDictionary<string, string>? environmentOverrides = null,
+        bool useHostFallbackFolder = true
     )
     {
         var rootDirectory = Path.Combine(Path.GetTempPath(), "Headless.NET.Sdk.Consumer", Guid.NewGuid().ToString("N"));
@@ -139,7 +140,7 @@ public sealed class Class1;
         );
         await File.WriteAllTextAsync(
             project.NuGetConfigPath,
-            project.CreateNuGetConfig(),
+            project.CreateNuGetConfig(useHostFallbackFolder),
             Encoding.UTF8,
             cancellationToken
         );
@@ -172,6 +173,10 @@ public sealed class Class1;
 
         return project;
     }
+
+    internal static string HostGlobalPackagesFolder =>
+        Environment.GetEnvironmentVariable("NUGET_PACKAGES")
+        ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages");
 
     public Task<DotNetCommandResult> RunDotNetAsync(string arguments) =>
         DotNetCommand.RunAsync(RootDirectory, arguments, environment, TestContext.Current.CancellationToken);
@@ -213,7 +218,7 @@ public sealed class Class1;
     {
         var argumentsSuffix = string.IsNullOrWhiteSpace(additionalArguments) ? string.Empty : $" {additionalArguments}";
         var result = await RunDotNetAsync(
-            $"msbuild {Quote(ProjectFilePath)} /restore /t:WriteHeadlessProperties -p:RestoreConfigFile={Quote(NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true -v:q -nologo{argumentsSuffix}"
+            $"msbuild {Quote(ProjectFilePath)} /restore /t:WriteHeadlessProperties -p:RestoreConfigFile={Quote(NuGetConfigPath)} -v:q -nologo{argumentsSuffix}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -246,14 +251,35 @@ public sealed class Class1;
         return ValueTask.CompletedTask;
     }
 
-    private string CreateNuGetConfig()
+    private string CreateNuGetConfig(bool useHostFallbackFolder)
     {
+        // The host's global packages folder serves as a read-only fallback: every dependency the
+        // consumer projects need (analyzers, MTP extensions, xunit, ref packs) is already there
+        // after the repository restore and previous runs, so consumer restores resolve without
+        // network access while keeping their isolated writable NUGET_PACKAGES. nuget.org stays
+        // as an explicit source for cold runners; restore failures surface loudly instead of
+        // being masked with RestoreIgnoreFailedSources. Tests that verify tooling restores into
+        // the consumer's own packages folder (SBOM) opt out: fallback-satisfied packages are
+        // never copied locally.
+        // Paths are XML-escaped: a cache path containing '&' or similar would otherwise produce
+        // a malformed NuGet.Config and fail every consumer restore.
+        var hostGlobalPackages = System.Security.SecurityElement.Escape(HostGlobalPackagesFolder);
+        var localPackageSource = System.Security.SecurityElement.Escape(packageSourceDirectory);
+        var fallbackSection = useHostFallbackFolder
+            ? $"""
+                <fallbackPackageFolders>
+                    <add key="host-global-packages" value="{hostGlobalPackages}" />
+                  </fallbackPackageFolders>
+                """
+            : string.Empty;
+
         return $$"""
             <?xml version="1.0" encoding="utf-8"?>
             <configuration>
+              {{fallbackSection}}
               <packageSources>
                 <clear />
-                <add key="local" value="{{packageSourceDirectory}}" />
+                <add key="local" value="{{localPackageSource}}" />
                 <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
               </packageSources>
               <packageSourceMapping>
@@ -369,6 +395,8 @@ public sealed class Class1;
                   <_HeadlessEvaluatedRuntimeHostOptions>@(RuntimeHostConfigurationOption->'%(Identity)=%(Value)', '|')</_HeadlessEvaluatedRuntimeHostOptions>
                   <_HeadlessEvaluatedInternalsVisibleTo>@(InternalsVisibleTo, '|')</_HeadlessEvaluatedInternalsVisibleTo>
                   <_HeadlessEvaluatedContainerImageTags>$([MSBuild]::Escape('$(ContainerImageTags)'))</_HeadlessEvaluatedContainerImageTags>
+                  <!-- Web/Blazor SDKs append to Features; escape so the semicolons survive the line split. -->
+                  <_HeadlessEvaluatedFeatures>$([MSBuild]::Escape('$(Features)'))</_HeadlessEvaluatedFeatures>
                 </PropertyGroup>
                 <ItemGroup>
                   <_HeadlessEvaluatedNoWarnItems Include="$(NoWarn)" />
@@ -378,7 +406,7 @@ public sealed class Class1;
                 </PropertyGroup>
                 <WriteLinesToFile
                   File="$(MSBuildProjectDirectory)/headless-properties.txt"
-                  Lines="TargetFramework=$(TargetFramework);RollForward=$(RollForward);PackAsTool=$(PackAsTool);HeadlessSdkName=$(HeadlessSdkName);HeadlessSdkProjectType=$(HeadlessSdkProjectType);HeadlessIsLlmContext=$(HeadlessIsLlmContext);ContinuousIntegrationBuild=$(ContinuousIntegrationBuild);CodeAnalysisTreatWarningsAsErrors=$(CodeAnalysisTreatWarningsAsErrors);WarningLevel=$(WarningLevel);Features=$(Features);Deterministic=$(Deterministic);AnalysisLevel=$(AnalysisLevel);AnalysisMode=$(AnalysisMode);IsTestHarnessProject=$(IsTestHarnessProject);IsTestProject=$(IsTestProject);IsTestingPlatformApplication=$(IsTestingPlatformApplication);GenerateRuntimeConfigurationFiles=$(GenerateRuntimeConfigurationFiles);GenerateSBOM=$(GenerateSBOM);IsPackable=$(IsPackable);EnablePackageValidation=$(EnablePackageValidation);NoWarn=$(_HeadlessEvaluatedNoWarn);EditorConfigFiles=$(_HeadlessEvaluatedEditorConfigFiles);AdditionalFiles=$(_HeadlessEvaluatedAdditionalFiles);NoneItems=$(_HeadlessEvaluatedNoneItems);PackageReferences=$(_HeadlessEvaluatedPackageReferences);MSBuildTreatWarningsAsErrors=$(MSBuildTreatWarningsAsErrors);RestoreLockedMode=$(RestoreLockedMode);HeadlessEmitInternalsVisibleToAttributes=$(HeadlessEmitInternalsVisibleToAttributes);InternalsVisibleTo=$(_HeadlessEvaluatedInternalsVisibleTo);TestingPlatformCommandLineArguments=$(TestingPlatformCommandLineArguments);PackageTags=$(PackageTags);PublishRepositoryUrl=$(PublishRepositoryUrl);RepositoryType=$(RepositoryType);RepositoryBranch=$(RepositoryBranch);IncludeSymbols=$(IncludeSymbols);SymbolPackageFormat=$(SymbolPackageFormat);DebugType=$(DebugType);HeadlessSymbolFormat=$(HeadlessSymbolFormat);Copyright=$(Copyright);RuntimeHostConfigurationOptions=$(_HeadlessEvaluatedRuntimeHostOptions);EnableSdkContainerSupport=$(EnableSdkContainerSupport);ContainerRegistry=$(ContainerRegistry);ContainerRepository=$(ContainerRepository);ContainerImageTagsMainVersionPrefix=$(ContainerImageTagsMainVersionPrefix);ContainerImageTagsIncludeLatest=$(ContainerImageTagsIncludeLatest);ContainerImageTags=$(_HeadlessEvaluatedContainerImageTags)"
+                  Lines="TargetFramework=$(TargetFramework);RollForward=$(RollForward);PackAsTool=$(PackAsTool);HeadlessSdkName=$(HeadlessSdkName);HeadlessSdkProjectType=$(HeadlessSdkProjectType);HeadlessIsLlmContext=$(HeadlessIsLlmContext);ContinuousIntegrationBuild=$(ContinuousIntegrationBuild);CodeAnalysisTreatWarningsAsErrors=$(CodeAnalysisTreatWarningsAsErrors);WarningLevel=$(WarningLevel);Features=$(_HeadlessEvaluatedFeatures);Deterministic=$(Deterministic);AnalysisLevel=$(AnalysisLevel);AnalysisMode=$(AnalysisMode);IsTestHarnessProject=$(IsTestHarnessProject);IsTestProject=$(IsTestProject);IsTestingPlatformApplication=$(IsTestingPlatformApplication);GenerateRuntimeConfigurationFiles=$(GenerateRuntimeConfigurationFiles);GenerateSBOM=$(GenerateSBOM);IsPackable=$(IsPackable);EnablePackageValidation=$(EnablePackageValidation);NoWarn=$(_HeadlessEvaluatedNoWarn);EditorConfigFiles=$(_HeadlessEvaluatedEditorConfigFiles);AdditionalFiles=$(_HeadlessEvaluatedAdditionalFiles);NoneItems=$(_HeadlessEvaluatedNoneItems);PackageReferences=$(_HeadlessEvaluatedPackageReferences);MSBuildTreatWarningsAsErrors=$(MSBuildTreatWarningsAsErrors);RestoreLockedMode=$(RestoreLockedMode);HeadlessEmitInternalsVisibleToAttributes=$(HeadlessEmitInternalsVisibleToAttributes);InternalsVisibleTo=$(_HeadlessEvaluatedInternalsVisibleTo);TestingPlatformCommandLineArguments=$(TestingPlatformCommandLineArguments);PackageTags=$(PackageTags);PublishRepositoryUrl=$(PublishRepositoryUrl);RepositoryType=$(RepositoryType);RepositoryBranch=$(RepositoryBranch);IncludeSymbols=$(IncludeSymbols);SymbolPackageFormat=$(SymbolPackageFormat);DebugType=$(DebugType);HeadlessSymbolFormat=$(HeadlessSymbolFormat);Copyright=$(Copyright);RuntimeHostConfigurationOptions=$(_HeadlessEvaluatedRuntimeHostOptions);EnableSdkContainerSupport=$(EnableSdkContainerSupport);ContainerRegistry=$(ContainerRegistry);ContainerRepository=$(ContainerRepository);ContainerImageTagsMainVersionPrefix=$(ContainerImageTagsMainVersionPrefix);ContainerImageTagsIncludeLatest=$(ContainerImageTagsIncludeLatest);ContainerImageTags=$(_HeadlessEvaluatedContainerImageTags)"
                   Overwrite="true"
                 />
               </Target>

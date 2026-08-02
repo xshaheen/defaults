@@ -78,6 +78,15 @@ public sealed class HeadlessSdkPackageFixture : IAsyncLifetime
         var cancellationToken = TestContext.Current.CancellationToken;
         var env = DotNetCommandEnvironment.CreateIsolatedEnvironment(PackageRootDirectory);
 
+        // Unique per-run version: the consumer NuGet.Config uses the host global packages folder
+        // as a fallback, and fallback folders are consulted before package sources - a stable
+        // (MinVer) version already present in the host cache would silently substitute stale SDK
+        // assets for the freshly packed ones. A version that can never pre-exist makes that
+        // impossible. MinVerSkip is required: MinVer reassigns PackageVersion inside its target,
+        // silently overriding a command-line -p:Version. ("it-" keeps the prerelease identifier
+        // non-numeric, so it is always valid SemVer even if the hex happens to be all digits.)
+        var uniquePackVersion = $"1.0.0-it-{Guid.NewGuid():N}";
+
         foreach (var packageId in PackageIds)
         {
             var projectPath = Path.Combine(repositoryRoot, "src", packageId, $"{packageId}.csproj");
@@ -86,7 +95,7 @@ public sealed class HeadlessSdkPackageFixture : IAsyncLifetime
             );
             var baseOutputPath = EnsureTrailingDirectorySeparator(Path.Combine(PackageRootDirectory, "bin", packageId));
             var command =
-                $"pack {Quote(projectPath)} -c Debug -o {Quote(PackageSourceDirectory)} -p:BaseIntermediateOutputPath={Quote(baseIntermediateOutputPath)} -p:BaseOutputPath={Quote(baseOutputPath)} -p:RestorePackagesWithLockFile=false -p:RestoreLockedMode=false";
+                $"pack {Quote(projectPath)} -c Debug -o {Quote(PackageSourceDirectory)} -p:MinVerSkip=true -p:Version={uniquePackVersion} -p:BaseIntermediateOutputPath={Quote(baseIntermediateOutputPath)} -p:BaseOutputPath={Quote(baseOutputPath)} -p:RestorePackagesWithLockFile=false -p:RestoreLockedMode=false";
             var result = await DotNetCommand.RunAsync(repositoryRoot, command, env, cancellationToken);
 
             if (result.ExitCode != 0)
@@ -154,6 +163,30 @@ public sealed class HeadlessSdkPackageFixture : IAsyncLifetime
 
         PackagePath = packagePaths["Headless.NET.Sdk"];
         PackageVersion = versions[0];
+
+        // The consumer NuGet.Config uses the host global packages folder as a fallback, and
+        // fallback folders are consulted before package sources. Self-packed runs use a unique
+        // per-run version that can never pre-exist, but prepacked artifacts (HEADLESS_PACKAGES_DIR)
+        // carry stable versions - if the host cache already holds any of them, every consumer
+        // test would silently exercise the cached copy instead of the supplied artifact. Fail
+        // loudly instead.
+        foreach (var packageId in PackageIds)
+        {
+            var cachedCopy = Path.Combine(
+                ConsumerProject.HostGlobalPackagesFolder,
+                packageId.ToLowerInvariant(),
+                PackageVersion
+            );
+
+            if (Directory.Exists(cachedCopy))
+            {
+                throw new InvalidOperationException(
+                    $"The host NuGet cache already contains {packageId} {PackageVersion} at '{cachedCopy}'. "
+                        + "The consumer fallback folder would shadow the packages under test; clear the cached "
+                        + "copy or repack with a version that does not pre-exist."
+                );
+            }
+        }
     }
 
     public ValueTask DisposeAsync()

@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Breaking Changes
+
+- The bumped analyzer baseline introduces new rules that participate immediately under `AnalysisLevel=latest-all` and escalate to errors on CI. This is intentional policy: the mandatory baseline tightens with each SDK release, and consumer code that was warning-free may need updates. Individual rules can now be disabled per project through the consumer's `.editorconfig` (see the NoWarn migration below).
+- Builds driven by AI coding agents now treat warnings as errors (`HeadlessIsLlmContext`); agent sessions on code with pre-existing warnings fail where they previously succeeded. Opt out with `HeadlessIsLlmContext=false`.
+- Consumer `.editorconfig` severities for previously-`NoWarn`'d rules now take effect: `/nowarn` no longer wins, so a consumer config that raises one of those rules will start reporting it. Clearing `$(NoWarn)` no longer re-enables baseline-disabled rules; re-enablement goes through editorconfig severities.
+- Project-body downgrades of `Deterministic`, `AnalysisLevel`, or `AnalysisMode` no longer take effect; the mandatory baseline is re-asserted after the project body in every consumption mode, closing a loophole in the documented authoritative contract.
+- The `embedded` and `snupkg` symbol formats embed untracked sources (including source-generator output) into shipped PDBs. Review generated content for sensitive values or opt out with `EmbedUntrackedSources=false`.
+
 ### Added
 
 - AI coding-agent detection (`HeadlessIsLlmContext`, auto-detected from Claude Code, Codex, Cursor, Copilot, Gemini, Windsurf, Zed, Cline, Aider, and other agent environment variables): agent-driven builds treat compiler, analyzer, nullable, and MSBuild warnings as errors without inheriting CI-only behavior (SBOM, locked restore, coverage). Consumer-overridable with `HeadlessIsLlmContext=false`.

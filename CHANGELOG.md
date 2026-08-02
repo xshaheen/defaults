@@ -2,6 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2026-08-02
+
+### Breaking Changes
+
+- The bumped analyzer baseline introduces new rules that participate immediately under `AnalysisLevel=latest-all` and escalate to errors on CI. This is intentional policy: the mandatory baseline tightens with each SDK release, and consumer code that was warning-free may need updates. Individual rules can now be disabled per project through the consumer's `.editorconfig` (see the NoWarn migration below).
+- Builds driven by AI coding agents now treat warnings as errors (`HeadlessIsLlmContext`); agent sessions on code with pre-existing warnings fail where they previously succeeded. Opt out with `HeadlessIsLlmContext=false`.
+- Consumer `.editorconfig` severities for previously-`NoWarn`'d rules now take effect: `/nowarn` no longer wins, so a consumer config that raises one of those rules will start reporting it. Clearing `$(NoWarn)` no longer re-enables baseline-disabled rules; re-enablement goes through editorconfig severities.
+- Project-body downgrades of `Deterministic`, `AnalysisLevel`, or `AnalysisMode` no longer take effect; the mandatory baseline is re-asserted after the project body in every consumption mode, closing a loophole in the documented authoritative contract.
+- The `embedded` and `snupkg` symbol formats embed untracked sources (including source-generator output) into shipped PDBs. Review generated content for sensitive values or opt out with `EmbedUntrackedSources=false`.
+
+### Added
+
+- AI coding-agent detection (`HeadlessIsLlmContext`, auto-detected from Claude Code, Codex, Cursor, Copilot, Gemini, Windsurf, Zed, Cline, Aider, and other agent environment variables): agent-driven builds treat compiler, analyzer, nullable, and MSBuild warnings as errors without inheriting CI-only behavior (SBOM, locked restore, coverage). Consumer-overridable with `HeadlessIsLlmContext=false`.
+- Analyzer rule-coverage gate: a repository test reflection-loads the nine mandatory analyzer packages, enumerates every supported diagnostic, and fails when an analyzer version bump introduces a rule that is neither tuned in a shipped editorconfig nor recorded in the reviewed package-defaults baseline — new rules now require an explicit severity decision instead of arriving silently.
+
+### Changed
+
+- Advisory defaults (`WarningLevel`, `Features`, `ReportAnalyzer`, `SuppressNETCoreSdkPreviewMessage`, `CheckEolTargetFramework`, `SuppressTfmSupportBuildWarnings`) are now guarded so a consumer `Directory.Build.props` value wins under both MSBuild-SDK and `PackageReference` consumption. The mandatory baseline (`Deterministic`, `AnalysisLevel`, `AnalysisMode`, analyzer execution) is re-asserted after the project body, so both consumption modes now behave identically for it as well.
+- Analyzer-rule disables moved from `$(NoWarn)` to the shipped editorconfigs as `severity = none`, so a consumer `.editorconfig` can re-enable any baseline-disabled rule per project (`/nowarn` cannot be overridden downstream). `$(NoWarn)` now carries only diagnostics analyzer config cannot express: `CS1712`, `NU5104`, the `CS1573`/`CS1591` documentation pair, and the Aspire-host `CA1707` relaxation. Test-project relaxations moved into `Headless.NET.Sdk.Tests.editorconfig`, and `CA2007` enforcement is now expressed purely through the baseline `none` plus the `HeadlessEnforceConfigureAwait` overlay.
+- Updated the mandatory analyzer baseline: `Meziantou.Analyzer` 3.0.75 → 3.0.125, `Microsoft.CodeAnalysis.BannedApiAnalyzers` 4.14.0 → 5.6.0, and `Microsoft.VisualStudio.Threading.Analyzers` 17.14.15 → 18.7.23. The remaining six analyzer packages were already at their latest published versions.
+- Analyzer versions are now single-sourced through `Directory.Packages.props` and covered by the Dependabot anchor project, so analyzer bump PRs open automatically; `VersionConsistencyTests` enforces consistency between the central pins, the shipped version properties, and the nuspec dependency ranges.
+- The `embedded` and `snupkg` symbol formats now default `EmbedUntrackedSources=true` so untracked sources (source-generator output, generated files) stay debuggable from the PDB; SourceLink cannot fetch files the repository does not track. Consumer-set values win, and `HeadlessSymbolFormat=none` stays on Microsoft defaults.
+
+### Fixed
+
+- `GenerateSBOM=true` now resolves the SBOM tooling from the restore-resolved package location under MSBuild SDK consumption, fixing packs when `Microsoft.Sbom.Targets` is satisfied from a NuGet fallback folder or shared cache. Under `PackageReference` consumption, restore evaluation cannot see package-delivered references (`ExcludeRestorePackageImports`), so such consumers must restore the tooling into their local packages folder before packing; this limitation is now documented in the shipped targets.
+- Integration-test consumer restores now use the host global packages folder as a read-only NuGet fallback and no longer pass `RestoreIgnoreFailedSources=true`: restores resolve without network access in the common case, and genuine restore failures surface loudly instead of being masked.
+- The shipped packaging targets no longer inject the SDK author's tag into consumer `PackageTags`; consumer tags pass through untouched.
+- Platform contract tests now report as skipped instead of passed when running on a non-matching operating system.
+
 ## [0.1.1] - 2026-07-27
 
 ### Changed

@@ -30,7 +30,7 @@ public sealed partial class SdkIntegrationTests
         );
 
         var result = await project.RunDotNetAsync(
-            $"restore {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"restore {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -68,7 +68,7 @@ class Foo { }
         );
 
         var result = await project.BuildAndCollectDiagnosticsAsync(
-            $"-p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"-p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -98,11 +98,205 @@ class Foo { }
         // --no-incremental: analyzers do not reliably re-run on an incremental build, so force a full
         // build to make the (absent) CA2007 diagnostic deterministic.
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
         Assert.DoesNotContain("CA2007", result.Output, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task should_honor_directory_build_props_overrides_for_advisory_defaults(bool useSdkConsumption)
+    {
+        // Advisory defaults (WarningLevel, Features, ...) are ==''-guarded so a consumer
+        // Directory.Build.props value wins under BOTH consumption modes. Under PackageReference
+        // consumption the Headless props evaluate AFTER Directory.Build.props, where an
+        // unconditional assignment would silently override the consumer.
+        await using var project = await ConsumerProject.CreateAsync(
+            fixture.PackageVersion,
+            fixture.PackageSourceDirectory,
+            sdk: useSdkConsumption ? $"Headless.NET.Sdk/{fixture.PackageVersion}" : "Microsoft.NET.Sdk",
+            includePackageReference: !useSdkConsumption,
+            additionalFiles: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["Directory.Build.props"] = """
+                <Project>
+                  <PropertyGroup>
+                    <WarningLevel>4</WarningLevel>
+                    <Features>peverify-compat</Features>
+                  </PropertyGroup>
+                </Project>
+                """,
+            }
+        );
+
+        var properties = await project.EvaluateHeadlessPropertiesAsync();
+
+        Assert.Equal("4", properties["WarningLevel"]);
+        Assert.Equal("peverify-compat", properties["Features"]);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task should_keep_mandatory_baseline_authoritative_over_project_body(bool useSdkConsumption)
+    {
+        // Deterministic and the analysis level/mode are mandatory policy: a project-body override
+        // is re-asserted away after evaluation in both consumption modes.
+        await using var project = await ConsumerProject.CreateAsync(
+            fixture.PackageVersion,
+            fixture.PackageSourceDirectory,
+            sdk: useSdkConsumption ? $"Headless.NET.Sdk/{fixture.PackageVersion}" : "Microsoft.NET.Sdk",
+            includePackageReference: !useSdkConsumption,
+            extraProperties: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["Deterministic"] = "false",
+                ["AnalysisLevel"] = "latest-minimum",
+                ["AnalysisMode"] = "Minimum",
+            }
+        );
+
+        var properties = await project.EvaluateHeadlessPropertiesAsync();
+
+        Assert.Equal("true", properties["Deterministic"]);
+        Assert.Equal("latest-all", properties["AnalysisLevel"]);
+        Assert.Equal("All", properties["AnalysisMode"]);
+    }
+
+    [Fact]
+    public async Task should_not_detect_llm_context_by_default()
+    {
+        // The harness neutralizes every agent variable (this suite itself usually runs under one),
+        // so a plain consumer build must see no LLM context and no warning escalation.
+        await using var project = await ConsumerProject.CreateAsync(
+            fixture.PackageVersion,
+            fixture.PackageSourceDirectory,
+            sdk: $"Headless.NET.Sdk/{fixture.PackageVersion}",
+            includePackageReference: false
+        );
+
+        var properties = await project.EvaluateHeadlessPropertiesAsync();
+
+        Assert.Equal("false", properties["HeadlessIsLlmContext"]);
+        Assert.Empty(properties["MSBuildTreatWarningsAsErrors"]);
+    }
+
+    [Fact]
+    public async Task should_enable_warnings_as_errors_for_llm_context_without_ci_side_effects()
+    {
+        // An AI coding agent driving the build gets the warning gate so it fixes warnings in the
+        // same session - but must NOT inherit CI-only behavior (SBOM, locked restore).
+        await using var project = await ConsumerProject.CreateAsync(
+            fixture.PackageVersion,
+            fixture.PackageSourceDirectory,
+            sdk: $"Headless.NET.Sdk/{fixture.PackageVersion}",
+            includePackageReference: false,
+            environmentOverrides: new Dictionary<string, string>(StringComparer.Ordinal) { ["CLAUDECODE"] = "1" }
+        );
+
+        var properties = await project.EvaluateHeadlessPropertiesAsync();
+
+        Assert.Equal("true", properties["HeadlessIsLlmContext"]);
+        Assert.Equal("true", properties["MSBuildTreatWarningsAsErrors"]);
+        Assert.Equal("true", properties["CodeAnalysisTreatWarningsAsErrors"]);
+        Assert.NotEqual("true", properties["ContinuousIntegrationBuild"]);
+        Assert.NotEqual("true", properties["GenerateSBOM"]);
+        Assert.Empty(properties["RestoreLockedMode"]);
+    }
+
+    [Fact]
+    public async Task should_respect_consumer_llm_context_opt_out()
+    {
+        await using var project = await ConsumerProject.CreateAsync(
+            fixture.PackageVersion,
+            fixture.PackageSourceDirectory,
+            sdk: $"Headless.NET.Sdk/{fixture.PackageVersion}",
+            includePackageReference: false,
+            extraProperties: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["HeadlessIsLlmContext"] = "false",
+            },
+            environmentOverrides: new Dictionary<string, string>(StringComparer.Ordinal) { ["CLAUDECODE"] = "1" }
+        );
+
+        var properties = await project.EvaluateHeadlessPropertiesAsync();
+
+        Assert.Equal("false", properties["HeadlessIsLlmContext"]);
+        Assert.Empty(properties["MSBuildTreatWarningsAsErrors"]);
+    }
+
+    [Fact]
+    public async Task should_fail_build_on_warning_in_llm_context()
+    {
+        // CA2007 (via opt-in enforcement) is a deterministic warning source; under an agent
+        // session it must escalate to an error and fail the build.
+        await using var project = await ConsumerProject.CreateAsync(
+            fixture.PackageVersion,
+            fixture.PackageSourceDirectory,
+            sdk: $"Headless.NET.Sdk/{fixture.PackageVersion}",
+            targetFramework: "net10.0",
+            includePackageReference: false,
+            extraProperties: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["HeadlessEnforceConfigureAwait"] = "true",
+            },
+            environmentOverrides: new Dictionary<string, string>(StringComparer.Ordinal) { ["CLAUDECODE"] = "1" },
+            additionalFiles: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["Repro.cs"] =
+                    "namespace ConsumerProject; public static class Repro { public static async System.Threading.Tasks.Task M() => await System.Threading.Tasks.Task.Delay(1); }",
+            }
+        );
+
+        var result = await project.RunDotNetAsync(
+            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
+        );
+
+        Assert.NotEqual(0, result.ExitCode);
+        Assert.Contains("error CA2007", result.Output, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task should_allow_consumer_editorconfig_to_reenable_baseline_disabled_rules()
+    {
+        // The baseline disables ship as editorconfig severity = none (global_level 0), so a
+        // consumer's own file-scoped .editorconfig can raise any of them back. CA1031 is
+        // representative: disabled by the SDK baseline, re-enabled here, and Repro.cs catches a
+        // general exception that must then be reported. (CA1812 would be a poor probe: the SDK's
+        // conventional InternalsVisibleTo emission makes it treat internals as externally
+        // visible, so it stays silent regardless of severity.)
+        await using var project = await ConsumerProject.CreateAsync(
+            fixture.PackageVersion,
+            fixture.PackageSourceDirectory,
+            sdk: $"Headless.NET.Sdk/{fixture.PackageVersion}",
+            targetFramework: "net10.0",
+            includePackageReference: false,
+            extraProperties: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["TreatWarningsAsErrors"] = "false",
+            },
+            additionalFiles: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                [".editorconfig"] = """
+                root = true
+
+                [*.cs]
+                dotnet_diagnostic.CA1031.severity = warning
+                """,
+                ["Repro.cs"] =
+                    "namespace ConsumerProject; public static class Repro { public static void M() { try { System.Console.WriteLine(); } catch (System.Exception) { } } }",
+            }
+        );
+
+        // --no-incremental: analyzers do not reliably re-run on an incremental build.
+        var result = await project.RunDotNetAsync(
+            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
+        );
+
+        Assert.True(result.ExitCode == 0, result.Output);
+        Assert.Contains("CA1031", result.Output, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -131,7 +325,7 @@ class Foo { }
         // --no-incremental: analyzers do not reliably re-run on an incremental build, so force a full
         // build to make the CA2007 diagnostic deterministic.
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -244,7 +438,7 @@ class Foo { }
         );
 
         var seedResult = await project.RunDotNetAsync(
-            $"restore {Quote(project.ProjectFilePath)} -p:CI=true -p:RestorePackagesWithLockFile=true -p:RestoreLockedMode=false -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"restore {Quote(project.ProjectFilePath)} -p:CI=true -p:RestorePackagesWithLockFile=true -p:RestoreLockedMode=false -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
         Assert.True(seedResult.ExitCode == 0, seedResult.Output);
 
@@ -265,7 +459,7 @@ class Foo { }
         );
 
         var lockedResult = await project.RunDotNetAsync(
-            $"restore {Quote(project.ProjectFilePath)} -p:CI=true -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"restore {Quote(project.ProjectFilePath)} -p:CI=true -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.NotEqual(0, lockedResult.ExitCode);
@@ -284,7 +478,7 @@ class Foo { }
         );
 
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.NotEqual(0, result.ExitCode);
@@ -312,7 +506,7 @@ public static class JsonConsumer
         );
 
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);

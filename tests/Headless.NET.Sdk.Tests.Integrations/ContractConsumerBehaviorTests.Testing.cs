@@ -71,7 +71,7 @@ public sealed partial class ContractConsumerBehaviorTests
         File.Copy(Path.Combine(repositoryRoot, "global.json"), Path.Combine(project.RootDirectory, "global.json"));
 
         var restore = await project.RunDotNetAsync(
-            $"restore {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"restore {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(restore.ExitCode == 0, restore.Output);

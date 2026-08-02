@@ -31,7 +31,7 @@ public sealed partial class SdkIntegrationTests
         );
 
         var result = await project.RunDotNetAsync(
-            $"pack {Quote(project.ProjectFilePath)} -c Release -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"pack {Quote(project.ProjectFilePath)} -c Release -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -52,7 +52,7 @@ public sealed partial class SdkIntegrationTests
         );
 
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.NotEqual(0, result.ExitCode);
@@ -85,32 +85,36 @@ public sealed partial class SdkIntegrationTests
     }
 
     [Fact]
-    public void should_suppress_test_noise_warnings_when_project_is_a_test_project()
+    public void should_relax_test_noise_rules_via_the_tests_editorconfig()
     {
+        // Test-project relaxations live in the tests editorconfig overlay (severity = none), NOT
+        // in a NoWarn block: /nowarn cannot be overridden downstream, while a consumer
+        // .editorconfig can re-enable any of these per project. Only the Aspire CA1707 line and
+        // the compiler/NuGet diagnostics (CS1712/NU5104, CS1573/CS1591) remain property-based.
         using var package = ZipFile.OpenRead(fixture.PackagePath);
-        // The test-project NoWarn lives in SupportGeneral.targets (not .props) so consumer-set
-        // IsTestProject / IsTestHarnessProject values are visible under MSBuild SDK consumption,
-        // where build props load before Directory.Build.props.
-        var content = ReadPackageEntry(package, "build/SupportGeneral.targets");
-        var document = XDocument.Parse(content);
-        var testNoWarn = document
+        var targets = XDocument.Parse(ReadPackageEntry(package, "build/SupportGeneral.targets"));
+        var conditionalNoWarn = targets
             .Root!.Elements("PropertyGroup")
             .Elements("NoWarn")
-            .Single(element =>
-                string.Equals(
-                    element.Attribute("Condition")?.Value,
-                    "'$(IsTestProject)' == 'true' or '$(IsTestHarnessProject)' == 'true'",
-                    StringComparison.Ordinal
-                )
+            .Select(element => element.Attribute("Condition")?.Value ?? string.Empty)
+            .Where(condition =>
+                condition.Contains("IsTestProject", StringComparison.Ordinal)
+                || condition.Contains("IsTestHarnessProject", StringComparison.Ordinal)
             )
-            .Value;
+            .ToList();
 
-        Assert.Contains("CA1849", testNoWarn, StringComparison.Ordinal);
-        Assert.Contains("MA0042", testNoWarn, StringComparison.Ordinal);
-        Assert.Contains("MA0166", testNoWarn, StringComparison.Ordinal);
-        Assert.Contains("CA1861", testNoWarn, StringComparison.Ordinal);
-        Assert.Contains("CA1859", testNoWarn, StringComparison.Ordinal);
-        Assert.Contains("CA1720", testNoWarn, StringComparison.Ordinal);
+        Assert.Empty(conditionalNoWarn);
+
+        var testsEditorConfig = ReadPackageEntry(package, "configurations/Headless.NET.Sdk.Tests.editorconfig");
+
+        Assert.Contains("dotnet_diagnostic.CA1707.severity = none", testsEditorConfig, StringComparison.Ordinal);
+        Assert.Contains("dotnet_diagnostic.CS8604.severity = none", testsEditorConfig, StringComparison.Ordinal);
+        Assert.Contains("dotnet_diagnostic.CA1849.severity = none", testsEditorConfig, StringComparison.Ordinal);
+        Assert.Contains("dotnet_diagnostic.MA0042.severity = none", testsEditorConfig, StringComparison.Ordinal);
+        Assert.Contains("dotnet_diagnostic.MA0166.severity = none", testsEditorConfig, StringComparison.Ordinal);
+        Assert.Contains("dotnet_diagnostic.CA1861.severity = none", testsEditorConfig, StringComparison.Ordinal);
+        Assert.Contains("dotnet_diagnostic.CA1859.severity = none", testsEditorConfig, StringComparison.Ordinal);
+        Assert.Contains("dotnet_diagnostic.CA1720.severity = none", testsEditorConfig, StringComparison.Ordinal);
     }
 
     [Fact]
@@ -341,7 +345,7 @@ public sealed partial class SdkIntegrationTests
         );
 
         var result = await project.RunDotNetAsync(
-            $"pack {Quote(project.ProjectFilePath)} -c Release -o {Quote(project.PackagesDirectory)} -p:PackageVersion=1.2.3 -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"pack {Quote(project.ProjectFilePath)} -c Release -o {Quote(project.PackagesDirectory)} -p:PackageVersion=1.2.3 -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -358,17 +362,29 @@ public sealed partial class SdkIntegrationTests
     }
 
     [Fact]
-    public async Task should_prefix_package_tags_with_author_tag_when_not_a_test_project()
+    public async Task should_leave_package_tags_untouched()
     {
-        // SupportPackageInformation.targets prepends "xshaheen;" to PackageTags for non-test projects.
-        await using var project = await ConsumerProject.CreateAsync(
+        // The SDK must not inject author identity into consumer packages: PackageTags stays empty
+        // by default and consumer-set values pass through unchanged (same stance as the deliberate
+        // refusal to default Authors/Company in SupportPackageInformation.targets).
+        await using var defaultProject = await ConsumerProject.CreateAsync(
             fixture.PackageVersion,
             fixture.PackageSourceDirectory
         );
 
-        var properties = await project.EvaluateHeadlessPropertiesAsync();
+        var defaultProperties = await defaultProject.EvaluateHeadlessPropertiesAsync();
 
-        Assert.StartsWith("xshaheen", properties["PackageTags"], StringComparison.Ordinal);
+        Assert.Empty(defaultProperties["PackageTags"]);
+
+        await using var taggedProject = await ConsumerProject.CreateAsync(
+            fixture.PackageVersion,
+            fixture.PackageSourceDirectory,
+            extraProperties: new Dictionary<string, string>(StringComparer.Ordinal) { ["PackageTags"] = "custom-tag" }
+        );
+
+        var taggedProperties = await taggedProject.EvaluateHeadlessPropertiesAsync();
+
+        Assert.Equal("custom-tag", taggedProperties["PackageTags"]);
     }
 
     [Fact]
@@ -574,7 +590,7 @@ public sealed partial class SdkIntegrationTests
         );
 
         var result = await project.RunDotNetAsync(
-            $"pack {Quote(project.ProjectFilePath)} -c Release -o {Quote(project.PackagesDirectory)} -p:PackageVersion=1.2.3 -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"pack {Quote(project.ProjectFilePath)} -c Release -o {Quote(project.PackagesDirectory)} -p:PackageVersion=1.2.3 -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -606,7 +622,7 @@ public sealed partial class SdkIntegrationTests
         );
 
         var result = await project.RunDotNetAsync(
-            $"pack {Quote(project.ProjectFilePath)} -c Release -o {Quote(project.PackagesDirectory)} -p:PackageVersion=1.2.3 -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"pack {Quote(project.ProjectFilePath)} -c Release -o {Quote(project.PackagesDirectory)} -p:PackageVersion=1.2.3 -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);

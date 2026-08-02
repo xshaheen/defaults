@@ -10,12 +10,19 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(IsBuildTaskProject)' != 'true'">
+    <!--
+      GeneratePathProperty makes restore emit $(PkgMicrosoft_Sbom_Targets) with the RESOLVED
+      package location. A NuGetPackageRoot-based guess breaks whenever the package is satisfied
+      from a NuGet fallback folder or shared cache, where nothing is copied into the local
+      packages folder.
+    -->
     <PackageReference
       Include="Microsoft.Sbom.Targets"
       Version="$(_HeadlessMicrosoftSbomTargetsVersion)"
       IsImplicitlyDefined="true"
       PrivateAssets="all"
       IncludeAssets="none"
+      GeneratePathProperty="true"
     />
   </ItemGroup>
 </Project>

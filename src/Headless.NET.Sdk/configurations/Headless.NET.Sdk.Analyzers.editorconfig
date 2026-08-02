@@ -190,6 +190,80 @@ dotnet_diagnostic.MA0182.severity = none
 dotnet_diagnostic.FAA0002.severity = warning
 
 ##########################################
+# Baseline disables (consumer-overridable)
+#
+# Migrated from the former $(NoWarn) baseline: severity = none keeps these rules silent by
+# default while a consumer .editorconfig (or a higher global_level config) can re-enable any of
+# them per project. /nowarn suppression cannot be overridden downstream, so $(NoWarn) is reserved
+# for compiler/NuGet diagnostics analyzer config cannot express (CS1712, NU5104).
+##########################################
+
+# IDE0055: Fix formatting (we use CSharpier)
+dotnet_diagnostic.IDE0055.severity = none
+# IDE0010/IDE0072: Add missing cases to switch statement/expression
+dotnet_diagnostic.IDE0010.severity = none
+dotnet_diagnostic.IDE0072.severity = none
+# CA1031: Do not catch general exception types
+dotnet_diagnostic.CA1031.severity = none
+# CA1062: Validate arguments of public methods
+dotnet_diagnostic.CA1062.severity = none
+# CA1054/CA1055/CA1056/CA2234: URI values should be System.Uri instead of strings
+dotnet_diagnostic.CA1054.severity = none
+dotnet_diagnostic.CA1055.severity = none
+dotnet_diagnostic.CA1056.severity = none
+dotnet_diagnostic.CA2234.severity = none
+# CA1308: Normalize strings to uppercase
+dotnet_diagnostic.CA1308.severity = none
+# CA1711: Identifiers should not have incorrect suffix
+dotnet_diagnostic.CA1711.severity = none
+# CA1812: Avoid uninstantiated internal classes (DI-resolved types are invisible to the analyzer)
+dotnet_diagnostic.CA1812.severity = none
+# CA1034: Nested types should not be visible
+dotnet_diagnostic.CA1034.severity = none
+# CA1724: Type names should not match namespaces
+dotnet_diagnostic.CA1724.severity = none
+# CA1040: Avoid empty interfaces
+dotnet_diagnostic.CA1040.severity = none
+# CA1819: Properties should not return arrays (performance preference)
+dotnet_diagnostic.CA1819.severity = none
+# CA1515: Consider making public types internal
+dotnet_diagnostic.CA1515.severity = none
+# CA1002: Do not expose generic lists (performance preference)
+dotnet_diagnostic.CA1002.severity = none
+# CA1032/RCS1194: Implement standard exception constructors
+dotnet_diagnostic.CA1032.severity = none
+dotnet_diagnostic.RCS1194.severity = none
+# MA0018/MA0038/MA0041/MA0097: deprecated in favor of CA1000/CA1822/CA1036
+dotnet_diagnostic.MA0018.severity = none
+dotnet_diagnostic.MA0038.severity = none
+dotnet_diagnostic.MA0041.severity = none
+dotnet_diagnostic.MA0097.severity = none
+# MA0040/MA0032: deprecated CancellationToken-flow rules (MA0079/MA0080 are the maintained pair)
+dotnet_diagnostic.MA0040.severity = none
+dotnet_diagnostic.MA0032.severity = none
+# MA0016: Prefer returning collection abstraction instead of implementation (performance preference)
+dotnet_diagnostic.MA0016.severity = none
+# MA0048: File name must match type name (multiple types per file are allowed)
+dotnet_diagnostic.MA0048.severity = none
+# MA0051: Method is too long
+dotnet_diagnostic.MA0051.severity = none
+# RCS1046/VSTHRD200: Asynchronous method name should end with 'Async'
+dotnet_diagnostic.RCS1046.severity = none
+dotnet_diagnostic.VSTHRD200.severity = none
+# RCS1163: Unused parameter (deprecated - use dotnet_code_quality_unused_parameters, IDE0060)
+dotnet_diagnostic.RCS1163.severity = none
+# RCS1090/MA0004/VSTHRD111: Use .ConfigureAwait — CA2007 is the single source of truth
+dotnet_diagnostic.RCS1090.severity = none
+dotnet_diagnostic.MA0004.severity = none
+dotnet_diagnostic.VSTHRD111.severity = none
+# CA2007: Consider calling ConfigureAwait — none by default (most Headless apps run without a
+# SynchronizationContext); HeadlessEnforceConfigureAwait=true applies the EnforceConfigureAwait
+# overlay (global_level 1), which raises this to warning.
+dotnet_diagnostic.CA2007.severity = none
+# AsyncFixer01: Unnecessary async/await usage
+dotnet_diagnostic.AsyncFixer01.severity = none
+
+##########################################
 # Code Style
 # https://docs.microsoft.com/dotnet/fundamentals/code-analysis/style-rules/language-rules
 ##########################################

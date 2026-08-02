@@ -38,7 +38,7 @@ indent_size = 2
         );
 
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true -p:SolutionDir={Quote(project.SolutionDirectory)}"
+            $"build {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:SolutionDir={Quote(project.SolutionDirectory)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -60,7 +60,7 @@ indent_size = 2
         );
 
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} -t:HeadlessScaffoldConfigFiles -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true -p:SolutionDir={Quote(project.SolutionDirectory)}"
+            $"build {Quote(project.ProjectFilePath)} -t:HeadlessScaffoldConfigFiles -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:SolutionDir={Quote(project.SolutionDirectory)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -97,7 +97,7 @@ indent_size = 2
         );
 
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} -t:HeadlessScaffoldConfigFiles -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true -p:SolutionDir={Quote(project.SolutionDirectory)}"
+            $"build {Quote(project.ProjectFilePath)} -t:HeadlessScaffoldConfigFiles -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:SolutionDir={Quote(project.SolutionDirectory)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -127,7 +127,7 @@ indent_size = 2
         );
 
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true -p:SolutionDir={Quote(project.SolutionDirectory)}"
+            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:SolutionDir={Quote(project.SolutionDirectory)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -147,7 +147,7 @@ indent_size = 2
         );
 
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} -t:HeadlessScaffoldConfigFiles --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true -p:SolutionDir={Quote(project.SolutionDirectory)}"
+            $"build {Quote(project.ProjectFilePath)} -t:HeadlessScaffoldConfigFiles --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:SolutionDir={Quote(project.SolutionDirectory)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -183,7 +183,7 @@ indent_size = 2
         );
 
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} -t:HeadlessScaffoldConfigFiles --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true -p:SolutionDir={Quote(project.SolutionDirectory)}"
+            $"build {Quote(project.ProjectFilePath)} -t:HeadlessScaffoldConfigFiles --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:SolutionDir={Quote(project.SolutionDirectory)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -215,7 +215,7 @@ indent_size = 2
         );
 
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} -t:HeadlessScaffoldConfigFiles --no-incremental -p:HeadlessOverwriteConfigFiles=true -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true -p:SolutionDir={Quote(project.SolutionDirectory)}"
+            $"build {Quote(project.ProjectFilePath)} -t:HeadlessScaffoldConfigFiles --no-incremental -p:HeadlessOverwriteConfigFiles=true -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:SolutionDir={Quote(project.SolutionDirectory)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);

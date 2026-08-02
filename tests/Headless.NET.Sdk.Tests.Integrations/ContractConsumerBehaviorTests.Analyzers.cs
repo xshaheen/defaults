@@ -27,7 +27,7 @@ public sealed partial class ContractConsumerBehaviorTests
         );
 
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -135,7 +135,7 @@ public sealed partial class ContractConsumerBehaviorTests
         );
 
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(project.ProjectFilePath)} --no-incremental -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
         Assert.True(result.ExitCode == 0, result.Output);
         Assert.Contains("RS0030", result.Output, StringComparison.Ordinal);
@@ -180,7 +180,7 @@ public sealed partial class ContractConsumerBehaviorTests
         );
 
         var restore = await project.RunDotNetAsync(
-            $"restore {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"restore {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(restore.ExitCode == 0, restore.Output);
@@ -218,7 +218,7 @@ public sealed partial class ContractConsumerBehaviorTests
             }
         );
         var defaultResult = await defaultProject.RunDotNetAsync(
-            $"build {Quote(defaultProject.ProjectFilePath)} -p:RestoreConfigFile={Quote(defaultProject.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(defaultProject.ProjectFilePath)} -p:RestoreConfigFile={Quote(defaultProject.NuGetConfigPath)}"
         );
         Assert.True(defaultResult.ExitCode == 0, defaultResult.Output);
 
@@ -235,7 +235,7 @@ public sealed partial class ContractConsumerBehaviorTests
             }
         );
         var disabledResult = await disabledProject.RunDotNetAsync(
-            $"build {Quote(disabledProject.ProjectFilePath)} -p:RestoreConfigFile={Quote(disabledProject.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(disabledProject.ProjectFilePath)} -p:RestoreConfigFile={Quote(disabledProject.NuGetConfigPath)}"
         );
 
         Assert.NotEqual(0, disabledResult.ExitCode);

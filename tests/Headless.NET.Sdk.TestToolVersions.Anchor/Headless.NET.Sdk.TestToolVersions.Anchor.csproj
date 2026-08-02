@@ -1,12 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!--
-    Dependabot anchor. The MTP extension versions exposed by Headless.NET.Sdk.Test are
-    single-sourced in Directory.Packages.props. Dependabot only bumps a central PackageVersion
-    that a real project references, so this project references the extensions purely so
-    Dependabot opens bump PRs.
+    Dependabot anchor. The MTP extension versions exposed by Headless.NET.Sdk.Test and the
+    mandatory analyzer versions injected by SupportImplicitAnalyzers.props are single-sourced in
+    Directory.Packages.props. Dependabot only bumps a central PackageVersion that a real project
+    references, so this project references those packages purely so Dependabot opens bump PRs.
 
     IncludeAssets="none" keeps every asset out of the build: nothing here is compiled against or
-    run. Keep this list in sync with Directory.Packages.props and package-contract tests.
+    run. Keep this list in sync with Directory.Packages.props and package-contract tests;
+    VersionConsistencyTests asserts this project covers every SDK-owned pin.
   -->
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -21,5 +22,17 @@
     <PackageReference Include="Microsoft.Testing.Extensions.Retry" IncludeAssets="none" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" IncludeAssets="none" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" IncludeAssets="none" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Meziantou.Analyzer" IncludeAssets="none" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" IncludeAssets="none" PrivateAssets="all" />
+    <PackageReference Include="AsyncFixer" IncludeAssets="none" PrivateAssets="all" />
+    <PackageReference Include="Asyncify" IncludeAssets="none" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" IncludeAssets="none" PrivateAssets="all" />
+    <PackageReference Include="SmartAnalyzers.MultithreadingAnalyzer" IncludeAssets="none" PrivateAssets="all" />
+    <PackageReference Include="Roslynator.Analyzers" IncludeAssets="none" PrivateAssets="all" />
+    <PackageReference Include="ReflectionAnalyzers" IncludeAssets="none" PrivateAssets="all" />
+    <PackageReference Include="ErrorProne.NET.CoreAnalyzers" IncludeAssets="none" PrivateAssets="all" />
   </ItemGroup>
 </Project>

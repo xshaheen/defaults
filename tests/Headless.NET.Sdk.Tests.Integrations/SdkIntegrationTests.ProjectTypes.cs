@@ -41,12 +41,12 @@ public sealed partial class SdkIntegrationTests
 
         var noWarn = properties["NoWarn"].Split('|', StringSplitOptions.RemoveEmptyEntries);
 
-        Assert.Contains("CA1849", noWarn);
-        Assert.Contains("MA0042", noWarn);
-        Assert.Contains("MA0166", noWarn);
-        Assert.Contains("CA1861", noWarn);
-        Assert.Contains("CA1859", noWarn);
-        Assert.Contains("CA1720", noWarn);
+        // Analyzer relaxations live in the tests editorconfig overlay (consumer-overridable);
+        // NoWarn retains only the compiler/NuGet diagnostics analyzer config cannot express.
+        Assert.Contains("1712", noWarn);
+        Assert.Contains("NU5104", noWarn);
+        Assert.DoesNotContain("CA1849", noWarn);
+        Assert.DoesNotContain("MA0042", noWarn);
     }
 
     [Fact]
@@ -74,12 +74,12 @@ public sealed partial class SdkIntegrationTests
         );
 
         var noWarn = properties["NoWarn"].Split('|', StringSplitOptions.RemoveEmptyEntries);
-        Assert.Contains("CA1849", noWarn);
-        Assert.Contains("MA0042", noWarn);
-        Assert.Contains("MA0166", noWarn);
-        Assert.Contains("CA1861", noWarn);
-        Assert.Contains("CA1859", noWarn);
-        Assert.Contains("CA1720", noWarn);
+        // Analyzer relaxations live in the tests editorconfig overlay (consumer-overridable);
+        // NoWarn retains only the compiler/NuGet diagnostics analyzer config cannot express.
+        Assert.Contains("1712", noWarn);
+        Assert.Contains("NU5104", noWarn);
+        Assert.DoesNotContain("CA1849", noWarn);
+        Assert.DoesNotContain("MA0042", noWarn);
 
         Assert.Empty(properties["TestingPlatformCommandLineArguments"]);
     }
@@ -114,12 +114,12 @@ public sealed partial class SdkIntegrationTests
         );
 
         var noWarn = properties["NoWarn"].Split('|', StringSplitOptions.RemoveEmptyEntries);
-        Assert.Contains("CA1849", noWarn);
-        Assert.Contains("MA0042", noWarn);
-        Assert.Contains("MA0166", noWarn);
-        Assert.Contains("CA1861", noWarn);
-        Assert.Contains("CA1859", noWarn);
-        Assert.Contains("CA1720", noWarn);
+        // Analyzer relaxations live in the tests editorconfig overlay (consumer-overridable);
+        // NoWarn retains only the compiler/NuGet diagnostics analyzer config cannot express.
+        Assert.Contains("1712", noWarn);
+        Assert.Contains("NU5104", noWarn);
+        Assert.DoesNotContain("CA1849", noWarn);
+        Assert.DoesNotContain("MA0042", noWarn);
 
         Assert.Empty(properties["TestingPlatformCommandLineArguments"]);
     }
@@ -269,7 +269,7 @@ public sealed partial class SdkIntegrationTests
         Directory.CreateDirectory(project.PackagesDirectory);
 
         var result = await project.RunDotNetAsync(
-            $"pack {Quote(project.ProjectFilePath)} -c Release -o {Quote(project.PackagesDirectory)} -p:MSBuildTreatWarningsAsErrors=true -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"pack {Quote(project.ProjectFilePath)} -c Release -o {Quote(project.PackagesDirectory)} -p:MSBuildTreatWarningsAsErrors=true -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -287,7 +287,7 @@ public sealed partial class SdkIntegrationTests
         );
 
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -319,7 +319,7 @@ public sealed partial class SdkIntegrationTests
         );
 
         var result = await project.RunDotNetAsync(
-            $"build {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"build {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.True(result.ExitCode == 0, result.Output);
@@ -350,7 +350,7 @@ public sealed partial class SdkIntegrationTests
         );
 
         var result = await project.RunDotNetAsync(
-            $"restore {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"restore {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         if (addCentralExtensionVersion)
@@ -373,7 +373,7 @@ public sealed partial class SdkIntegrationTests
         var headlessVersion = useSdkConsumption
             ? string.Empty
             : $@"<PackageVersion Include=""Headless.NET.Sdk"" Version=""{fixture.PackageVersion}"" />";
-        var analyzerVersion = useSdkConsumption ? "3.0.75" : "1.0.102";
+        var analyzerVersion = useSdkConsumption ? "3.0.125" : "1.0.102";
         var centralVersions =
             $@"{headlessVersion}
 <PackageVersion Include=""Meziantou.Analyzer"" Version=""{analyzerVersion}"" />";
@@ -391,7 +391,7 @@ public sealed partial class SdkIntegrationTests
         );
 
         var result = await project.RunDotNetAsync(
-            $"restore {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
+            $"restore {Quote(project.ProjectFilePath)} -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
         );
 
         Assert.NotEqual(0, result.ExitCode);

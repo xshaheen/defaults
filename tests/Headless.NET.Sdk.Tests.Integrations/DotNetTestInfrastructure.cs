@@ -96,6 +96,34 @@ internal static class DotNetCommandEnvironment
         environment["BUILD_URL"] = string.Empty;
         environment["PROJECT_ID"] = string.Empty;
         environment["JB_SPACE_API_URL"] = string.Empty;
+
+        // AI coding-agent variables (SupportDetectLlmContext.props). These leak from the very
+        // sessions that run this suite — Claude Code sets CLAUDECODE — so every one must be
+        // neutralized for consumer builds to behave like a plain developer machine.
+        environment["CLAUDECODE"] = string.Empty;
+        environment["CLAUDE_CODE_ENTRYPOINT"] = string.Empty;
+        environment["CURSOR_EDITOR"] = string.Empty;
+        environment["CURSOR_AI"] = string.Empty;
+        environment["GH_COPILOT_WORKING_DIRECTORY"] = string.Empty;
+        environment["COPILOT_CLI"] = string.Empty;
+        environment["COPILOT_AGENT"] = string.Empty;
+        environment["CODEX_CLI"] = string.Empty;
+        environment["CODEX_SANDBOX"] = string.Empty;
+        environment["AMP_HOME"] = string.Empty;
+        environment["QWEN_CODE"] = string.Empty;
+        environment["OPENCODE_AI"] = string.Empty;
+        environment["ZED_ENVIRONMENT"] = string.Empty;
+        environment["ZED_TERM"] = string.Empty;
+        environment["GOOSE_TERMINAL"] = string.Empty;
+        environment["CLINE_TASK_ID"] = string.Empty;
+        environment["ROO_CODE_TASK_ID"] = string.Empty;
+        environment["WINDSURF_SESSION"] = string.Empty;
+        environment["GEMINI_CLI"] = string.Empty;
+        environment["GITHUB_COPILOT_CLI_MODE"] = string.Empty;
+        environment["DROID_CLI"] = string.Empty;
+        environment["KIMI_CLI"] = string.Empty;
+        environment["AGENT_CLI"] = string.Empty;
+        environment["OR_APP_NAME"] = string.Empty;
     }
 }
 

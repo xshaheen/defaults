@@ -32,6 +32,7 @@ public sealed class PackageContractTests(HeadlessSdkPackageFixture fixture)
         "build/SupportCopyright.targets",
         "build/SupportDetectContinuousIntegration.props",
         "build/SupportDetectContinuousIntegration.targets",
+        "build/SupportDetectLlmContext.props",
         "build/SupportEmbedBinlog.targets",
         "build/SupportGeneral.props",
         "build/SupportGeneral.targets",
@@ -73,10 +74,10 @@ public sealed class PackageContractTests(HeadlessSdkPackageFixture fixture)
         ["AsyncFixer"] = "[2.1.0]",
         ["Asyncify"] = "[0.9.7]",
         ["ErrorProne.NET.CoreAnalyzers"] = "[0.1.2]",
-        ["Meziantou.Analyzer"] = "[3.0.75]",
-        ["Microsoft.CodeAnalysis.BannedApiAnalyzers"] = "[4.14.0]",
+        ["Meziantou.Analyzer"] = "[3.0.125]",
+        ["Microsoft.CodeAnalysis.BannedApiAnalyzers"] = "[5.6.0]",
         ["Microsoft.Sbom.Targets"] = "[4.1.5]",
-        ["Microsoft.VisualStudio.Threading.Analyzers"] = "[17.14.15]",
+        ["Microsoft.VisualStudio.Threading.Analyzers"] = "[18.7.23]",
         ["ReflectionAnalyzers"] = "[0.3.1]",
         ["Roslynator.Analyzers"] = "[4.15.0]",
         ["SmartAnalyzers.MultithreadingAnalyzer"] = "[1.1.31]",
@@ -306,16 +307,49 @@ public sealed class PackageContractTests(HeadlessSdkPackageFixture fixture)
     }
 
     [Fact]
-    public void should_not_override_microsoft_source_embedding_defaults()
+    public void should_embed_untracked_sources_for_symbol_shipping_formats()
     {
+        // embedded/snupkg PDBs embed untracked sources (source-generator output, obj/ generated
+        // files) because SourceLink cannot fetch what the repository does not track. The 'none'
+        // format ships no symbols and must stay on Microsoft defaults.
         using var package = ZipFile.OpenRead(fixture.PackagePath);
         var target = package.GetEntry("build/SupportPackageInformation.targets");
         Assert.NotNull(target);
 
         using var reader = new StreamReader(target.Open());
-        var content = reader.ReadToEnd();
+        var document = XDocument.Parse(reader.ReadToEnd());
 
-        Assert.DoesNotContain("<EmbedUntrackedSources>", content, StringComparison.Ordinal);
+        var symbolBranches = document
+            .Root!.Elements("PropertyGroup")
+            .Where(group =>
+                group.Attribute("Condition")?.Value.Contains("$(HeadlessSymbolFormat)", StringComparison.Ordinal)
+                    is true
+            )
+            .ToDictionary(
+                group => group.Attribute("Condition")!.Value,
+                group => group.Elements("EmbedUntrackedSources").ToList(),
+                StringComparer.Ordinal
+            );
+
+        foreach (var (condition, embedElements) in symbolBranches)
+        {
+            if (condition.Contains("'embedded'", StringComparison.Ordinal))
+            {
+                var element = Assert.Single(embedElements);
+                Assert.Equal("true", element.Value);
+                Assert.Contains("'$(EmbedUntrackedSources)' == ''", element.Attribute("Condition")?.Value);
+            }
+            else if (condition.Contains("'snupkg'", StringComparison.Ordinal))
+            {
+                var element = Assert.Single(embedElements);
+                Assert.Equal("true", element.Value);
+                Assert.Contains("'$(EmbedUntrackedSources)' == ''", element.Attribute("Condition")?.Value);
+            }
+            else if (condition.Contains("'none'", StringComparison.Ordinal))
+            {
+                Assert.Empty(embedElements);
+            }
+        }
     }
 
     [Fact]

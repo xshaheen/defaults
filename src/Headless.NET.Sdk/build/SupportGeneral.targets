@@ -4,10 +4,17 @@
   <!--
     Re-apply the CI quality gate after the consumer project body. Named quality policy is
     intentionally authoritative; local builds retain consumer-selected warning behavior.
+
+    The LLM-context trigger (SupportDetectLlmContext.props) joins the gate ONLY here, in the
+    targets phase: applying it in SupportGeneral.props would fire before the consumer's
+    Directory.Build.props under MSBuild SDK consumption, making a consumer HeadlessIsLlmContext
+    opt-out impossible to honor. CI detection stays authoritative in both phases.
   -->
   <PropertyGroup
-    Label="CI Quality Gate"
-    Condition=" '$(_HeadlessIsKnownCiEnvironment)' == 'true' or '$(ContinuousIntegrationBuild)' == 'true' "
+    Label="CI / LLM Quality Gate"
+    Condition=" '$(_HeadlessIsKnownCiEnvironment)' == 'true'
+      or '$(ContinuousIntegrationBuild)' == 'true'
+      or '$(HeadlessIsLlmContext)' == 'true' "
   >
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
     <MSBuildTreatWarningsAsErrors>true</MSBuildTreatWarningsAsErrors>
@@ -22,12 +29,26 @@
   <Target
     Name="HeadlessEnableCompilerWarningsAsErrors"
     BeforeTargets="CoreCompile"
-    Condition=" '$(_HeadlessIsKnownCiEnvironment)' == 'true' or '$(ContinuousIntegrationBuild)' == 'true' "
+    Condition=" '$(_HeadlessIsKnownCiEnvironment)' == 'true'
+      or '$(ContinuousIntegrationBuild)' == 'true'
+      or '$(HeadlessIsLlmContext)' == 'true' "
   >
     <PropertyGroup>
       <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
   </Target>
+
+  <!--
+    Mandatory quality baseline, re-asserted after the consumer project body so both consumption
+    modes behave identically (analyzer execution properties get the same treatment in
+    SupportMandatoryAnalyzers.targets). EffectiveAnalysisLevel is computed later, in
+    Microsoft.NET.Sdk.Analyzers.targets, so this re-assert is authoritative for the mapping.
+  -->
+  <PropertyGroup Label="Mandatory Baseline">
+    <Deterministic>true</Deterministic>
+    <AnalysisLevel>latest-all</AnalysisLevel>
+    <AnalysisMode>All</AnalysisMode>
+  </PropertyGroup>
 
   <PropertyGroup Label="Conventional Test Friend Assemblies">
     <HeadlessEmitInternalsVisibleToAttributes Condition=" '$(HeadlessEmitInternalsVisibleToAttributes)' == '' "
@@ -84,34 +105,21 @@
     <NoWarn Condition="'$(DisableDocumentationWarnings)' != 'false'">$(NoWarn);CS1573;CS1591</NoWarn>
   </PropertyGroup>
 
-  <PropertyGroup Label="ConfigureAwait Enforcement">
+  <!--
+    CA2007 (ConfigureAwait) enforcement lives entirely in analyzer config: the always-on baseline
+    sets CA2007 = none, and when the consumer opts in with HeadlessEnforceConfigureAwait=true the
+    bundled Headless.NET.Sdk.EnforceConfigureAwait.editorconfig (global_level 1) raises it to a
+    warning. Test-project analyzer relaxations moved to Headless.NET.Sdk.Tests.editorconfig for the
+    same reason: severity = none stays consumer-overridable where a NoWarn entry would not be.
+  -->
+  <PropertyGroup Label="Aspire NoWarn">
     <!--
-      CA2007: Consider calling ConfigureAwait on the awaited task.
-      Suppressed by default because most Headless apps run without a SynchronizationContext. Opt in via
-      <HeadlessEnforceConfigureAwait>true</HeadlessEnforceConfigureAwait> (e.g. libraries consumed by
-      Headless.NET.Sdk.WindowsDesktop apps). When enforced, the bundled
-      Headless.NET.Sdk.EnforceConfigureAwait.editorconfig raises CA2007 to a warning; the redundant
-      ConfigureAwait analyzers (RCS1090, MA0004, VSTHRD111) stay suppressed so only CA2007 reports.
-      Evaluated here (not in SupportGeneral.props) so the consumer's HeadlessEnforceConfigureAwait
-      value is already set before the suppression decision is made.
+      Aspire-host CA1707 relaxation (generated members contain underscores). Evaluated here (not in
+      SupportGeneral.props) so an IsAspireHost set by the consumer in Directory.Build.props or the
+      csproj is visible: under MSBuild SDK consumption, build/Headless.NET.Sdk.props loads BEFORE
+      Directory.Build.props. Kept as NoWarn (not an editorconfig overlay) because it is a single
+      generated-code rule no Aspire host will want back.
     -->
-    <NoWarn Condition="'$(HeadlessEnforceConfigureAwait)' != 'true'">$(NoWarn);CA2007</NoWarn>
-  </PropertyGroup>
-
-  <PropertyGroup Label="Test And Aspire NoWarn">
-    <!--
-      Test-project noise suppressions and the Aspire-host CA1707 relaxation. Evaluated here (not in
-      SupportGeneral.props) so that IsTestProject / IsTestHarnessProject / IsAspireHost set by the
-      consumer in Directory.Build.props or the csproj are visible: under MSBuild SDK consumption,
-      build/Headless.NET.Sdk.props loads BEFORE Directory.Build.props, so a .props-phase condition
-      would miss a consumer-set value. NoWarn is consumed at compile time, well after this point.
-      CA1707/IDE1006/IDE0022/CS8604/S4144/CA5394/CA1848/MA0076/MA0003/RCS1046/CA2254/IDE0039/CA1849/
-      MA0042/MA0166/CA1861/CA1859/CA1720: too noisy for test code.
-      CA1707 (underscores): Aspire hosts generate members with underscores.
-    -->
-    <NoWarn Condition="'$(IsTestProject)' == 'true' or '$(IsTestHarnessProject)' == 'true'"
-      >$(NoWarn);CA1707;IDE1006;IDE0022;CS8604;S4144;CA5394;CA1848;MA0076;MA0003;RCS1046;CA2254;IDE0039;CA1849;MA0042;MA0166;CA1861;CA1859;CA1720</NoWarn
-    >
     <NoWarn Condition="'$(IsAspireHost)' == 'true'">$(NoWarn);CA1707</NoWarn>
   </PropertyGroup>
 

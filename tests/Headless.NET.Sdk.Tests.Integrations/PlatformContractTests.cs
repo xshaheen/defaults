@@ -15,10 +15,7 @@ public sealed class WindowsPlatformContractTests(HeadlessSdkPackageFixture fixtu
     [InlineData("UseWindowsForms")]
     public async Task should_build_real_windows_desktop_consumers_on_windows(string desktopProperty)
     {
-        if (!OperatingSystem.IsWindows())
-        {
-            return;
-        }
+        Assert.SkipUnless(OperatingSystem.IsWindows(), "Windows desktop consumers only build on Windows.");
 
         var additionalFiles =
             desktopProperty == "UseWPF"
@@ -63,9 +60,7 @@ public sealed class WindowsPlatformContractTests(HeadlessSdkPackageFixture fixtu
             additionalFiles: additionalFiles
         );
 
-        var result = await project.BuildWithBinLogAsync(
-            $"-p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
-        );
+        var result = await project.BuildWithBinLogAsync($"-p:RestoreConfigFile={Quote(project.NuGetConfigPath)}");
 
         Assert.True(result.ExitCode == 0, result.Output);
         TestContext.Current.AddAttachment(
@@ -81,10 +76,7 @@ public sealed class MacOsPlatformContractTests(HeadlessSdkPackageFixture fixture
     [Fact]
     public async Task should_build_base_sdk_consumer_on_macos()
     {
-        if (!OperatingSystem.IsMacOS())
-        {
-            return;
-        }
+        Assert.SkipUnless(OperatingSystem.IsMacOS(), "macOS-hosted build contract runs on macOS only.");
 
         await using var project = await ConsumerProject.CreateAsync(
             fixture.PackageVersion,
@@ -94,9 +86,7 @@ public sealed class MacOsPlatformContractTests(HeadlessSdkPackageFixture fixture
             includePackageReference: false
         );
 
-        var result = await project.BuildWithBinLogAsync(
-            $"-p:RestoreConfigFile={Quote(project.NuGetConfigPath)} -p:RestoreIgnoreFailedSources=true"
-        );
+        var result = await project.BuildWithBinLogAsync($"-p:RestoreConfigFile={Quote(project.NuGetConfigPath)}");
 
         Assert.True(result.ExitCode == 0, result.Output);
         TestContext.Current.AddAttachment(

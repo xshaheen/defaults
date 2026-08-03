@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.1] - 2026-08-03
+
+### Changed
+
+- Updated the mandatory analyzer baseline from `Meziantou.Analyzer` 3.0.125 to 3.0.129 and the integration-test support dependency `Microsoft.Bcl.AsyncInterfaces` from 10.0.9 to 10.0.10.
+
 ## [0.2.0] - 2026-08-02
 
 ### Breaking Changes

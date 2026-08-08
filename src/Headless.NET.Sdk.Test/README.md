@@ -49,13 +49,32 @@ This is a command-host requirement, not a restriction on the test project's `Tar
 
 Additional-SDK, `global.json` MSBuild SDK resolution, and .NET 10 `#:sdk Headless.NET.Sdk.Test@x.y.z` consumption are also supported. See the [family consumption reference](https://github.com/xshaheen/headless-sdk#consumption-modes).
 
+## Coverage settings
+
+The package owns the coverage denominator policy in
+`configurations/default.runsettings`. `HeadlessCoverageSettingsPath` evaluates to the absolute path
+of that packaged file. When a project-evaluated test run sets `EnableCodeCoverage=true`, the SDK
+adds `--coverage` and exactly one `--coverage-settings` argument using that property.
+
+Microsoft Testing Platform's `--test-modules` mode runs prebuilt assemblies without project
+evaluation, so it cannot receive SDK-injected `TestingPlatformCommandLineArguments`. External build
+tooling should query the project, capture the single-line result, and pass the value explicitly:
+
+```text
+dotnet msbuild tests/MyProject.Tests/MyProject.Tests.csproj -getProperty:HeadlessCoverageSettingsPath -nologo
+dotnet test --test-modules 'tests/**/bin/Release/**/*.Tests.dll' --root-directory <repository-root> --coverage --coverage-settings <value-from-the-command-above>
+```
+
+Resolve the property from one representative test project after restore; do not copy or maintain a
+consumer-owned runsettings file.
+
 ## Test contract
 
 - Executable MTP host by default, with `IsTestProject=true`, `IsPackable=false`, and `IsPublishable=false`.
 - Microsoft Testing Platform only; VSTest and `Microsoft.NET.Test.Sdk` are not injected.
 - Restore-visible crash dump, hang dump, hot reload, retry, TRX, and coverage extensions.
 - Default TRX output, crash and hang dumps, and a minimum expected test count.
-- Coverage enabled on CI and analyzer work skipped during the test-build phase unless explicitly retained.
+- Coverage enabled on CI, with `HeadlessCoverageSettingsPath` exposing the packaged denominator policy, and analyzer work skipped during the test-build phase unless explicitly retained.
 - Mandatory Headless analyzer infrastructure, configurable banned-API policy, and mandatory audit and CI policies with narrow test-code severity relaxations.
 
 The package is self-contained and ships no `buildTransitive` assets. Shared harness libraries can instead use `IsTestHarnessProject=true` with the base SDK to receive test analysis defaults without becoming executable test hosts.

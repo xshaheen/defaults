@@ -167,9 +167,12 @@ public sealed partial class SdkIntegrationTests
         Assert.Contains("dotnet_diagnostic.CA2227.severity = none", testAnalyzerConfig, StringComparison.Ordinal);
 
         var testTargets = ReadPackageEntry(package, "build/SupportTestProjects.targets");
-        Assert.Contains("configurations/default.runsettings", testTargets, StringComparison.Ordinal);
-        // MTP coverage settings use the platform's --coverage-settings argument.
-        Assert.Contains("--coverage-settings", testTargets, StringComparison.Ordinal);
+        var testTargetsDocument = XDocument.Parse(testTargets);
+        var coverageSettingsArgument = Assert.Single(
+            testTargetsDocument.Descendants("TestingPlatformCommandLineArguments"),
+            element => element.Value.Contains("--coverage-settings", StringComparison.Ordinal)
+        );
+        Assert.Contains("$(HeadlessCoverageSettingsPath)", coverageSettingsArgument.Value, StringComparison.Ordinal);
 
         var runsettings = ReadPackageEntry(package, "configurations/default.runsettings");
         Assert.Contains("<TreatNoTestsAsError>true</TreatNoTestsAsError>", runsettings, StringComparison.Ordinal);

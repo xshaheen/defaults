@@ -237,6 +237,7 @@ the listed default; explicit values win unless the behavior is identified as man
 | `GenerateSBOM` | `false` | Generates an SPDX SBOM inside the package when enabled. |
 | `IsTestHarnessProject` | `false` | Applies test-library defaults without creating an executable test host. |
 | `EnableCodeCoverage` | `true` on CI, otherwise unset | Adds MTP coverage arguments when `true`. |
+| `HeadlessCoverageSettingsPath` | packaged Test SDK path | Absolute path to the SDK-owned `default.runsettings`; query this evaluated property when an external runner needs the canonical coverage denominator policy. |
 | `EnableDefaultTestSettings` | enabled unless `false` | Set `false` to own all MTP command-line defaults. |
 | `OptimizeTestRun` | enabled unless `false` | Set `false` to keep analyzers enabled during MTP's test-build phase. |
 | `DisableSupportPackageInformation` | `false` | Set `true` to opt out of Headless package metadata and symbol policy. |
@@ -324,6 +325,30 @@ repository `global.json` to select the MTP runner. Add this top-level entry alon
 Without that entry, .NET 10 routes `dotnet test` through VSTest and Microsoft Testing Platform
 rejects the invocation before discovering tests. This host requirement does not restrict the test
 project's `TargetFramework`.
+
+### Coverage settings contract
+
+`Headless.NET.Sdk.Test` owns the coverage denominator policy in its packaged
+`configurations/default.runsettings`. During project-evaluated test runs, setting
+`EnableCodeCoverage=true` adds `--coverage` and one `--coverage-settings` argument whose value is
+the evaluated `HeadlessCoverageSettingsPath` property.
+
+Microsoft Testing Platform's `--test-modules` mode runs prebuilt assemblies without evaluating the
+test project, so SDK-injected `TestingPlatformCommandLineArguments` are not available. External
+build tooling should evaluate the test project first, capture the single-line property value, and
+pass it to the module invocation:
+
+```text
+dotnet msbuild tests/MyProject.Tests/MyProject.Tests.csproj -getProperty:HeadlessCoverageSettingsPath -nologo -v:quiet
+dotnet test --test-modules 'tests/**/bin/Release/**/*.Tests.dll' --root-directory <repository-root> --minimum-expected-tests 1 --coverage --coverage-settings "<value-from-the-command-above>"
+```
+
+Treat the query result as a fully qualified path and verify that it exists before invoking the
+module runner. This keeps module-based runners on the packaged SDK coverage denominator policy
+instead of copying the runsettings into consumer repositories. The required follow-up for Headless
+Framework PR #814 is to resolve this property for its module-based runner, retain its Cobertura
+regression verifier, and remove the duplicated `eng/coverage.runsettings`; that framework change
+and any SDK version bump are outside this repository change.
 
 The Test SDK owns the versions of its six implicit MTP extension references. Central Package Management consumers must not add `PackageVersion` entries for those extension IDs; NuGet rejects central versions for SDK-defined implicit references with NU1009. The consumer's test-framework version remains centrally manageable.
 

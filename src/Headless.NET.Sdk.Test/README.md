@@ -61,12 +61,13 @@ evaluation, so it cannot receive SDK-injected `TestingPlatformCommandLineArgumen
 tooling should query the project, capture the single-line result, and pass the value explicitly:
 
 ```text
-dotnet msbuild tests/MyProject.Tests/MyProject.Tests.csproj -getProperty:HeadlessCoverageSettingsPath -nologo
-dotnet test --test-modules 'tests/**/bin/Release/**/*.Tests.dll' --root-directory <repository-root> --coverage --coverage-settings <value-from-the-command-above>
+dotnet msbuild tests/MyProject.Tests/MyProject.Tests.csproj -getProperty:HeadlessCoverageSettingsPath -nologo -v:quiet
+dotnet test --test-modules 'tests/**/bin/Release/**/*.Tests.dll' --root-directory <repository-root> --minimum-expected-tests 1 --coverage --coverage-settings "<value-from-the-command-above>"
 ```
 
-Resolve the property from one representative test project after restore; do not copy or maintain a
-consumer-owned runsettings file.
+Resolve the property from one representative test project after restore. Treat the result as a
+fully qualified path and verify that it exists before invoking the module runner; do not copy or
+maintain a consumer-owned runsettings file.
 
 ## Test contract
 

@@ -339,15 +339,16 @@ build tooling should evaluate the test project first, capture the single-line pr
 pass it to the module invocation:
 
 ```text
-dotnet msbuild tests/MyProject.Tests/MyProject.Tests.csproj -getProperty:HeadlessCoverageSettingsPath -nologo
-dotnet test --test-modules 'tests/**/bin/Release/**/*.Tests.dll' --root-directory <repository-root> --coverage --coverage-settings <value-from-the-command-above>
+dotnet msbuild tests/MyProject.Tests/MyProject.Tests.csproj -getProperty:HeadlessCoverageSettingsPath -nologo -v:quiet
+dotnet test --test-modules 'tests/**/bin/Release/**/*.Tests.dll' --root-directory <repository-root> --minimum-expected-tests 1 --coverage --coverage-settings "<value-from-the-command-above>"
 ```
 
-This keeps module-based runners on the packaged SDK policy instead of copying the runsettings into
-consumer repositories. The required follow-up for Headless Framework PR #814 is to resolve this
-property for its module-based runner, retain its Cobertura regression verifier, and remove the
-duplicated `eng/coverage.runsettings`; that framework change and any SDK version bump are outside
-this repository change.
+Treat the query result as a fully qualified path and verify that it exists before invoking the
+module runner. This keeps module-based runners on the packaged SDK coverage denominator policy
+instead of copying the runsettings into consumer repositories. The required follow-up for Headless
+Framework PR #814 is to resolve this property for its module-based runner, retain its Cobertura
+regression verifier, and remove the duplicated `eng/coverage.runsettings`; that framework change
+and any SDK version bump are outside this repository change.
 
 The Test SDK owns the versions of its six implicit MTP extension references. Central Package Management consumers must not add `PackageVersion` entries for those extension IDs; NuGet rejects central versions for SDK-defined implicit references with NU1009. The consumer's test-framework version remains centrally manageable.
 

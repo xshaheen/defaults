@@ -69,12 +69,12 @@ public sealed partial class ContractConsumerBehaviorTests
             .Select(element => element.Value);
         Assert.Contains(@"^.*\.Migrations\..*$", functionExclusions);
 
-        var testProps = XDocument.Parse(ReadPackageText(package, "build/Headless.NET.Sdk.Test.props"));
-        var coverageSettingsProperty = Assert.Single(testProps.Descendants("HeadlessCoverageSettingsPath"));
+        var testTargets = XDocument.Parse(ReadPackageText(package, "build/SupportTestProjects.targets"));
+        var coverageSettingsProperty = Assert.Single(testTargets.Descendants("HeadlessCoverageSettingsPath"));
         Assert.Contains("configurations", coverageSettingsProperty.Value, StringComparison.Ordinal);
         Assert.Contains("default.runsettings", coverageSettingsProperty.Value, StringComparison.Ordinal);
+        Assert.Equal("'$(HeadlessCoverageSettingsPath)' == ''", coverageSettingsProperty.Attribute("Condition")?.Value);
 
-        var testTargets = XDocument.Parse(ReadPackageText(package, "build/SupportTestProjects.targets"));
         var coverageSettingsArgument = Assert.Single(
             testTargets.Descendants("TestingPlatformCommandLineArguments"),
             element => element.Value.Contains("--coverage-settings", StringComparison.Ordinal)
@@ -141,7 +141,7 @@ public sealed partial class ContractConsumerBehaviorTests
         Assert.True(restore.ExitCode == 0, restore.Output);
 
         var settingsEvaluation = await project.RunDotNetAsync(
-            $"msbuild {Quote(project.ProjectFilePath)} -getProperty:HeadlessCoverageSettingsPath -nologo"
+            $"msbuild {Quote(project.ProjectFilePath)} -getProperty:HeadlessCoverageSettingsPath -nologo -v:quiet"
         );
         Assert.True(settingsEvaluation.ExitCode == 0, settingsEvaluation.Output);
 
@@ -156,7 +156,7 @@ public sealed partial class ContractConsumerBehaviorTests
         Assert.Equal(XDocument.Parse(packagedSettings).ToString(), XDocument.Parse(resolvedSettings).ToString());
 
         var argumentsEvaluation = await project.RunDotNetAsync(
-            $"msbuild {Quote(project.ProjectFilePath)} -getProperty:TestingPlatformCommandLineArguments -nologo"
+            $"msbuild {Quote(project.ProjectFilePath)} -getProperty:TestingPlatformCommandLineArguments -nologo -v:quiet"
         );
         Assert.True(argumentsEvaluation.ExitCode == 0, argumentsEvaluation.Output);
 

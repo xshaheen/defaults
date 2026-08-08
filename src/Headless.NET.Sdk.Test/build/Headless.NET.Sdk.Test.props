@@ -8,9 +8,6 @@
     <IsTestProject Condition="'$(IsTestProject)' == ''">true</IsTestProject>
     <OutputType Condition="'$(OutputType)' == '' or '$(OutputType)' == 'Library'">Exe</OutputType>
     <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner>
-    <HeadlessCoverageSettingsPath
-      >$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '..', 'configurations', 'default.runsettings'))</HeadlessCoverageSettingsPath
-    >
     <_HeadlessSdkDefaultIsPackable Condition="'$(_HeadlessSdkDefaultIsPackable)' == ''"
       >false</_HeadlessSdkDefaultIsPackable
     >

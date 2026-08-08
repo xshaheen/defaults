@@ -20,6 +20,9 @@
     <EnableCodeCoverage Condition="'$(EnableCodeCoverage)' == '' AND '$(ContinuousIntegrationBuild)' == 'true'"
       >true</EnableCodeCoverage
     >
+    <HeadlessCoverageSettingsPath Condition="'$(HeadlessCoverageSettingsPath)' == ''"
+      >$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '..', 'configurations', 'default.runsettings'))</HeadlessCoverageSettingsPath
+    >
   </PropertyGroup>
 
   <!-- The Test SDK owns these exact extension bindings, including direct consumer duplicates. -->

@@ -74,7 +74,7 @@ public sealed class PackageContractTests(HeadlessSdkPackageFixture fixture)
         ["AsyncFixer"] = "[2.1.0]",
         ["Asyncify"] = "[0.9.7]",
         ["ErrorProne.NET.CoreAnalyzers"] = "[0.1.2]",
-        ["Meziantou.Analyzer"] = "[3.0.129]",
+        ["Meziantou.Analyzer"] = "[3.0.138]",
         ["Microsoft.CodeAnalysis.BannedApiAnalyzers"] = "[5.6.0]",
         ["Microsoft.Sbom.Targets"] = "[4.1.5]",
         ["Microsoft.VisualStudio.Threading.Analyzers"] = "[18.7.23]",
@@ -88,11 +88,11 @@ public sealed class PackageContractTests(HeadlessSdkPackageFixture fixture)
     )
     {
         ["Microsoft.Testing.Extensions.CodeCoverage"] = "[18.9.0]",
-        ["Microsoft.Testing.Extensions.CrashDump"] = "[2.3.2]",
-        ["Microsoft.Testing.Extensions.HangDump"] = "[2.3.2]",
-        ["Microsoft.Testing.Extensions.HotReload"] = "[2.3.2]",
-        ["Microsoft.Testing.Extensions.Retry"] = "[2.3.2]",
-        ["Microsoft.Testing.Extensions.TrxReport"] = "[2.3.2]",
+        ["Microsoft.Testing.Extensions.CrashDump"] = "[2.3.3]",
+        ["Microsoft.Testing.Extensions.HangDump"] = "[2.3.3]",
+        ["Microsoft.Testing.Extensions.HotReload"] = "[2.3.3]",
+        ["Microsoft.Testing.Extensions.Retry"] = "[2.3.3]",
+        ["Microsoft.Testing.Extensions.TrxReport"] = "[2.3.3]",
     };
 
     [Fact]

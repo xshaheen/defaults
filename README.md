@@ -305,7 +305,7 @@ The test framework remains consumer-selected. For example:
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit.v3.mtp-v2" Version="3.2.2" />
+    <PackageReference Include="xunit.v3.mtp-v2" Version="4.0.0" />
   </ItemGroup>
 </Project>
 ```

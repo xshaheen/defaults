@@ -74,12 +74,12 @@ public sealed class PackageContractTests(HeadlessSdkPackageFixture fixture)
         ["AsyncFixer"] = "[2.1.0]",
         ["Asyncify"] = "[0.9.7]",
         ["ErrorProne.NET.CoreAnalyzers"] = "[0.1.2]",
-        ["Meziantou.Analyzer"] = "[3.0.141]",
+        ["Meziantou.Analyzer"] = "[3.0.159]",
         ["Microsoft.CodeAnalysis.BannedApiAnalyzers"] = "[5.6.0]",
         ["Microsoft.Sbom.Targets"] = "[4.1.5]",
         ["Microsoft.VisualStudio.Threading.Analyzers"] = "[18.7.23]",
         ["ReflectionAnalyzers"] = "[0.3.1]",
-        ["Roslynator.Analyzers"] = "[4.16.0]",
+        ["Roslynator.Analyzers"] = "[4.16.1]",
         ["SmartAnalyzers.MultithreadingAnalyzer"] = "[1.1.31]",
     };
 
@@ -87,7 +87,7 @@ public sealed class PackageContractTests(HeadlessSdkPackageFixture fixture)
         StringComparer.Ordinal
     )
     {
-        ["Microsoft.Testing.Extensions.CodeCoverage"] = "[18.9.0]",
+        ["Microsoft.Testing.Extensions.CodeCoverage"] = "[18.10.0]",
         ["Microsoft.Testing.Extensions.CrashDump"] = "[2.3.3]",
         ["Microsoft.Testing.Extensions.HangDump"] = "[2.3.3]",
         ["Microsoft.Testing.Extensions.HotReload"] = "[2.3.3]",

@@ -140,7 +140,7 @@ Pin one or more family members centrally:
 ```json
 {
   "sdk": {
-    "version": "10.0.301",
+    "version": "10.0.400",
     "rollForward": "disable"
   },
   "msbuild-sdks": {
@@ -305,7 +305,7 @@ The test framework remains consumer-selected. For example:
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="xunit.v3.mtp-v2" Version="3.2.2" />
+    <PackageReference Include="xunit.v3.mtp-v2" Version="4.0.0" />
   </ItemGroup>
 </Project>
 ```

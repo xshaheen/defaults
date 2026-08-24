@@ -7,6 +7,6 @@
 <_HeadlessMtpHotReloadVersion>[2.3.3]</_HeadlessMtpHotReloadVersion>
 <_HeadlessMtpRetryVersion>[2.3.3]</_HeadlessMtpRetryVersion>
 <_HeadlessMtpTrxReportVersion>[2.3.3]</_HeadlessMtpTrxReportVersion>
-<_HeadlessMtpCodeCoverageVersion>[18.9.0]</_HeadlessMtpCodeCoverageVersion>
+<_HeadlessMtpCodeCoverageVersion>[18.10.0]</_HeadlessMtpCodeCoverageVersion>
 </PropertyGroup>
 </Project>

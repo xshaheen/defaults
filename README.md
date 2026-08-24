@@ -140,7 +140,7 @@ Pin one or more family members centrally:
 ```json
 {
   "sdk": {
-    "version": "10.0.301",
+    "version": "10.0.400",
     "rollForward": "disable"
   },
   "msbuild-sdks": {

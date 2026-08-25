@@ -4,7 +4,7 @@
 # deciding whether the default severity is right for the SDK baseline.
 # Format: one rule ID per line; '#' starts a comment.
 #
-# Baseline reviewed 2026-08-24 with: Meziantou.Analyzer 3.0.159,
+# Baseline reviewed 2026-08-25 with: Meziantou.Analyzer 3.0.165,
 # Microsoft.CodeAnalysis.BannedApiAnalyzers 5.6.0, AsyncFixer 2.1.0, Asyncify 0.9.7,
 # Microsoft.VisualStudio.Threading.Analyzers 18.7.23, SmartAnalyzers.MultithreadingAnalyzer
 # 1.1.31, Roslynator.Analyzers 4.16.1, ReflectionAnalyzers 0.3.1,
@@ -205,6 +205,7 @@ MA0212
 MA0213
 MA0214
 MA0215
+MA0216
 
 # --- SmartAnalyzers.MultithreadingAnalyzer ---
 MT1000

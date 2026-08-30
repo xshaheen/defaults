@@ -79,7 +79,7 @@ public sealed class PackageContractTests(HeadlessSdkPackageFixture fixture)
         ["Microsoft.Sbom.Targets"] = "[4.1.5]",
         ["Microsoft.VisualStudio.Threading.Analyzers"] = "[18.7.23]",
         ["ReflectionAnalyzers"] = "[0.3.1]",
-        ["Roslynator.Analyzers"] = "[4.16.1]",
+        ["Roslynator.Analyzers"] = "[5.0.0]",
         ["SmartAnalyzers.MultithreadingAnalyzer"] = "[1.1.31]",
     };
 

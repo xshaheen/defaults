@@ -10,7 +10,7 @@
     <_HeadlessAsyncifyVersion>0.9.7</_HeadlessAsyncifyVersion>
     <_HeadlessVisualStudioThreadingAnalyzersVersion>18.7.23</_HeadlessVisualStudioThreadingAnalyzersVersion>
     <_HeadlessMultithreadingAnalyzerVersion>1.1.31</_HeadlessMultithreadingAnalyzerVersion>
-    <_HeadlessRoslynatorAnalyzersVersion>4.16.1</_HeadlessRoslynatorAnalyzersVersion>
+    <_HeadlessRoslynatorAnalyzersVersion>5.0.0</_HeadlessRoslynatorAnalyzersVersion>
     <_HeadlessReflectionAnalyzersVersion>0.3.1</_HeadlessReflectionAnalyzersVersion>
     <_HeadlessErrorProneAnalyzersVersion>0.1.2</_HeadlessErrorProneAnalyzersVersion>
   </PropertyGroup>

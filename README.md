@@ -199,17 +199,25 @@ The following analyzer packages are injected as private, implicit dependencies f
 - `Microsoft.VisualStudio.Threading.Analyzers`
 - `SmartAnalyzers.MultithreadingAnalyzer`
 - `Roslynator.Analyzers`
+- `Roslynator.Formatting.Analyzers`
 - `ReflectionAnalyzers`
 - `ErrorProne.NET.CoreAnalyzers`
 
 The sole self-reference exception is a project whose evaluated `PackageId` is
 `Meziantou.Analyzer`; Headless omits that one analyzer reference so the analyzer package can use
-the SDK without depending on itself. The other eight analyzer references and all mandatory policy
+the SDK without depending on itself. The other nine analyzer references and all mandatory policy
 still apply.
+
+`Roslynator.Formatting.Analyzers` complements CSharpier without becoming a second formatter. The
+SDK enables only file-format guardrails as suggestions: LF newlines (`RCS0045`), spaces instead of
+tabs (`RCS0046`), the 120-character line limit (`RCS0056`), and normalized whitespace at the start
+and end of files (`RCS0057`/`RCS0058`). Brace, indentation, wrapping, and blank-line layout rules
+remain disabled at package defaults so CSharpier stays authoritative. Consumers that want stricter
+blank-line enforcement can explicitly enable `RCS0063`, Roslynator 5's replacement for `RCS1036`.
 
 The bundled general and Newtonsoft.Json banned-symbol lists are enabled by default. Consumers can disable the complete banned-symbol policy with `DisableSupportBannedSymbols=true`, or disable either list independently through `IncludeDefaultBannedSymbols=false` and `BannedNewtonsoftJsonSymbols=false`. The `Microsoft.CodeAnalysis.BannedApiAnalyzers` package remains part of the analyzer infrastructure.
 
-The SDK owns the versions of all nine implicit analyzer references. Central Package Management
+The SDK owns the versions of all ten implicit analyzer references. Central Package Management
 consumers must not add `PackageVersion` entries for those analyzer IDs. SDK-form consumption rejects
 them as SDK-defined implicit references with NU1009; PackageReference consumption rejects conflicting
 central versions against the package family's exact dependency ranges.
@@ -262,7 +270,7 @@ the listed default; explicit values win unless the behavior is identified as man
 | `HeadlessCopyGitAttributesToSolutionDir` | master selector | Selects only `.gitattributes`. |
 | `HeadlessOverwriteConfigFiles` | `false` | Allows the explicit scaffold target to replace existing files. |
 
-The explicit target framework, nine analyzer packages, analyzer configuration, CI warning gate,
+The explicit target framework, ten analyzer packages, analyzer configuration, CI warning gate,
 NuGet audit policy, and SDK-owned MTP extension
 versions are mandatory policy. Legacy analyzer/configuration opt-out names do not disable them.
 

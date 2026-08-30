@@ -176,6 +176,18 @@ dotnet_diagnostic.MA0047.severity = warning
 
 # RCS1021: Convert lambda expression body to expression-body
 dotnet_diagnostic.RCS1021.severity = silent
+# CSharpier owns code layout. Roslynator.Formatting.Analyzers enforces only the
+# repository's file-format guardrails so the two formatters do not compete.
+roslynator_max_line_length = 120
+# RCS0045: Use line feed as newline
+dotnet_diagnostic.RCS0045.severity = suggestion
+# RCS0046: Use spaces instead of tabs
+dotnet_diagnostic.RCS0046.severity = suggestion
+# RCS0056: A line is too long
+dotnet_diagnostic.RCS0056.severity = suggestion
+# RCS0057/RCS0058: Normalize whitespace at file boundaries
+dotnet_diagnostic.RCS0057.severity = suggestion
+dotnet_diagnostic.RCS0058.severity = suggestion
 # MA0025: Implement the functionality (or raise NotSupportedException)
 # Tests intentionally throw NotImplementedException to exercise exception-handler mapping
 dotnet_diagnostic.MA0025.severity = suggestion

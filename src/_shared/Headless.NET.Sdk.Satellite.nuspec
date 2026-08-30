@@ -27,6 +27,7 @@
       <dependency id="Microsoft.VisualStudio.Threading.Analyzers" version="[$VisualStudioThreadingAnalyzersVersion$]" include="All" />
       <dependency id="ReflectionAnalyzers" version="[$ReflectionAnalyzersVersion$]" include="All" />
       <dependency id="Roslynator.Analyzers" version="[$RoslynatorAnalyzersVersion$]" include="All" />
+      <dependency id="Roslynator.Formatting.Analyzers" version="[$RoslynatorFormattingAnalyzersVersion$]" include="All" />
       <dependency id="SmartAnalyzers.MultithreadingAnalyzer" version="[$MultithreadingAnalyzerVersion$]" include="All" />
     </dependencies>
   </metadata>

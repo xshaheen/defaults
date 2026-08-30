@@ -11,6 +11,7 @@
     <_HeadlessVisualStudioThreadingAnalyzersVersion>18.7.23</_HeadlessVisualStudioThreadingAnalyzersVersion>
     <_HeadlessMultithreadingAnalyzerVersion>1.1.31</_HeadlessMultithreadingAnalyzerVersion>
     <_HeadlessRoslynatorAnalyzersVersion>5.0.0</_HeadlessRoslynatorAnalyzersVersion>
+    <_HeadlessRoslynatorFormattingAnalyzersVersion>5.0.0</_HeadlessRoslynatorFormattingAnalyzersVersion>
     <_HeadlessReflectionAnalyzersVersion>0.3.1</_HeadlessReflectionAnalyzersVersion>
     <_HeadlessErrorProneAnalyzersVersion>0.1.2</_HeadlessErrorProneAnalyzersVersion>
   </PropertyGroup>
@@ -66,6 +67,15 @@
     <PackageReference
       Include="Roslynator.Analyzers"
       Version="$(_HeadlessRoslynatorAnalyzersVersion)"
+      IsImplicitlyDefined="true"
+    >
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+
+    <PackageReference
+      Include="Roslynator.Formatting.Analyzers"
+      Version="$(_HeadlessRoslynatorFormattingAnalyzersVersion)"
       IsImplicitlyDefined="true"
     >
       <PrivateAssets>all</PrivateAssets>

@@ -80,6 +80,7 @@ public sealed class PackageContractTests(HeadlessSdkPackageFixture fixture)
         ["Microsoft.VisualStudio.Threading.Analyzers"] = "[18.7.23]",
         ["ReflectionAnalyzers"] = "[0.3.1]",
         ["Roslynator.Analyzers"] = "[5.0.0]",
+        ["Roslynator.Formatting.Analyzers"] = "[5.0.0]",
         ["SmartAnalyzers.MultithreadingAnalyzer"] = "[1.1.31]",
     };
 

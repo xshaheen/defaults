@@ -15,7 +15,7 @@
   -->
   <ItemGroup Condition="'$(IsBuildTaskProject)' != 'true'">
     <PackageReference
-      Remove="Meziantou.Analyzer;Microsoft.CodeAnalysis.BannedApiAnalyzers;AsyncFixer;Asyncify;Microsoft.VisualStudio.Threading.Analyzers;SmartAnalyzers.MultithreadingAnalyzer;Roslynator.Analyzers;ReflectionAnalyzers;ErrorProne.NET.CoreAnalyzers"
+      Remove="Meziantou.Analyzer;Microsoft.CodeAnalysis.BannedApiAnalyzers;AsyncFixer;Asyncify;Microsoft.VisualStudio.Threading.Analyzers;SmartAnalyzers.MultithreadingAnalyzer;Roslynator.Analyzers;Roslynator.Formatting.Analyzers;ReflectionAnalyzers;ErrorProne.NET.CoreAnalyzers"
     />
     <PackageReference
       Include="Meziantou.Analyzer"
@@ -69,6 +69,14 @@
     <PackageReference
       Include="Roslynator.Analyzers"
       Version="$(_HeadlessRoslynatorAnalyzersVersion)"
+      IsImplicitlyDefined="true"
+      PrivateAssets="all"
+      IncludeAssets="runtime; build; native; contentfiles; analyzers"
+      ExcludeAssets=""
+    />
+    <PackageReference
+      Include="Roslynator.Formatting.Analyzers"
+      Version="$(_HeadlessRoslynatorFormattingAnalyzersVersion)"
       IsImplicitlyDefined="true"
       PrivateAssets="all"
       IncludeAssets="runtime; build; native; contentfiles; analyzers"

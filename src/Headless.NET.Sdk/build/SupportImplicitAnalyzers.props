@@ -4,13 +4,14 @@
     This quality baseline deliberately has no consumer opt-out.
   -->
   <PropertyGroup>
-    <_HeadlessMeziantouAnalyzerVersion>3.0.165</_HeadlessMeziantouAnalyzerVersion>
+    <_HeadlessMeziantouAnalyzerVersion>3.0.177</_HeadlessMeziantouAnalyzerVersion>
     <_HeadlessBannedApiAnalyzersVersion>5.6.0</_HeadlessBannedApiAnalyzersVersion>
     <_HeadlessAsyncFixerVersion>2.1.0</_HeadlessAsyncFixerVersion>
     <_HeadlessAsyncifyVersion>0.9.7</_HeadlessAsyncifyVersion>
     <_HeadlessVisualStudioThreadingAnalyzersVersion>18.7.23</_HeadlessVisualStudioThreadingAnalyzersVersion>
     <_HeadlessMultithreadingAnalyzerVersion>1.1.31</_HeadlessMultithreadingAnalyzerVersion>
-    <_HeadlessRoslynatorAnalyzersVersion>4.16.1</_HeadlessRoslynatorAnalyzersVersion>
+    <_HeadlessRoslynatorAnalyzersVersion>5.0.0</_HeadlessRoslynatorAnalyzersVersion>
+    <_HeadlessRoslynatorFormattingAnalyzersVersion>5.0.0</_HeadlessRoslynatorFormattingAnalyzersVersion>
     <_HeadlessReflectionAnalyzersVersion>0.3.1</_HeadlessReflectionAnalyzersVersion>
     <_HeadlessErrorProneAnalyzersVersion>0.1.2</_HeadlessErrorProneAnalyzersVersion>
   </PropertyGroup>
@@ -66,6 +67,15 @@
     <PackageReference
       Include="Roslynator.Analyzers"
       Version="$(_HeadlessRoslynatorAnalyzersVersion)"
+      IsImplicitlyDefined="true"
+    >
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+
+    <PackageReference
+      Include="Roslynator.Formatting.Analyzers"
+      Version="$(_HeadlessRoslynatorFormattingAnalyzersVersion)"
       IsImplicitlyDefined="true"
     >
       <PrivateAssets>all</PrivateAssets>

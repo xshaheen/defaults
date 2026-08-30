@@ -40,6 +40,7 @@ public sealed class VersionConsistencyTests
         ["_HeadlessVisualStudioThreadingAnalyzersVersion"] = "Microsoft.VisualStudio.Threading.Analyzers",
         ["_HeadlessMultithreadingAnalyzerVersion"] = "SmartAnalyzers.MultithreadingAnalyzer",
         ["_HeadlessRoslynatorAnalyzersVersion"] = "Roslynator.Analyzers",
+        ["_HeadlessRoslynatorFormattingAnalyzersVersion"] = "Roslynator.Formatting.Analyzers",
         ["_HeadlessReflectionAnalyzersVersion"] = "ReflectionAnalyzers",
         ["_HeadlessErrorProneAnalyzersVersion"] = "ErrorProne.NET.CoreAnalyzers",
     };

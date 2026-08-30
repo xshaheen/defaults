@@ -32,6 +32,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" IncludeAssets="none" PrivateAssets="all" />
     <PackageReference Include="SmartAnalyzers.MultithreadingAnalyzer" IncludeAssets="none" PrivateAssets="all" />
     <PackageReference Include="Roslynator.Analyzers" IncludeAssets="none" PrivateAssets="all" />
+    <PackageReference Include="Roslynator.Formatting.Analyzers" IncludeAssets="none" PrivateAssets="all" />
     <PackageReference Include="ReflectionAnalyzers" IncludeAssets="none" PrivateAssets="all" />
     <PackageReference Include="ErrorProne.NET.CoreAnalyzers" IncludeAssets="none" PrivateAssets="all" />
   </ItemGroup>

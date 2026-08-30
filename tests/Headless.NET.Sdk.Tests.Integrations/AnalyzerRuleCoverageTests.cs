@@ -13,7 +13,7 @@ using Xunit;
 namespace Headless.NET.Sdk.Tests.Integrations;
 
 // Guards against analyzer version bumps silently introducing rules nobody made a severity
-// decision for: every diagnostic the nine mandatory analyzer packages can report must either be
+// decision for: every diagnostic the ten mandatory analyzer packages can report must either be
 // tuned in a shipped editorconfig or explicitly recorded in AnalyzerRulesAtPackageDefaults.txt
 // (a conscious "package default accepted" review record). Pure source/cache check - no packaging
 // fixture - modeled as a gate on Meziantou.NET.Sdk's generated-config approach.
@@ -28,6 +28,7 @@ public sealed class AnalyzerRuleCoverageTests
         "Microsoft.VisualStudio.Threading.Analyzers",
         "SmartAnalyzers.MultithreadingAnalyzer",
         "Roslynator.Analyzers",
+        "Roslynator.Formatting.Analyzers",
         "ReflectionAnalyzers",
         "ErrorProne.NET.CoreAnalyzers",
     ];
@@ -37,6 +38,20 @@ public sealed class AnalyzerRuleCoverageTests
     // code-generation plumbing, never DiagnosticAnalyzers; any failed type outside these prefixes
     // still fails the gate.
     private static readonly string[] NonAnalyzerFailedTypePrefixes = ["Microsoft.CodeAnalysis.CodeGeneration."];
+
+    private static readonly string[] MandatoryAnalyzerRuleIdPrefixes =
+    [
+        "AsyncFixer",
+        "Asyncify",
+        "EPC",
+        "ERP",
+        "MA",
+        "MT",
+        "RCS",
+        "REFL",
+        "RS003",
+        "VSTHRD",
+    ];
 
     private static readonly string[] ShippedEditorConfigs =
     [
@@ -65,9 +80,22 @@ public sealed class AnalyzerRuleCoverageTests
         }
 
         // Sanity floor: reflection-loading silently finding nothing would make the gate useless.
-        Assert.True(allRules.Count > 400, $"Expected 400+ rules across the nine analyzers, found {allRules.Count}.");
+        Assert.True(allRules.Count > 450, $"Expected 450+ rules across the ten analyzers, found {allRules.Count}.");
 
         var uncovered = allRules.Where(rule => !tuned.Contains(rule.Key) && !reviewed.Contains(rule.Key)).ToList();
+        var staleReviewed = reviewed
+            .Where(ruleId => !allRules.ContainsKey(ruleId))
+            .Order(StringComparer.Ordinal)
+            .ToList();
+        var staleTuned = tuned
+            .Where(ruleId =>
+                MandatoryAnalyzerRuleIdPrefixes.Any(prefix =>
+                    ruleId.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)
+                )
+            )
+            .Where(ruleId => !allRules.ContainsKey(ruleId))
+            .Order(StringComparer.Ordinal)
+            .ToList();
 
         Assert.True(
             uncovered.Count == 0,
@@ -76,6 +104,58 @@ public sealed class AnalyzerRuleCoverageTests
                 + "tests/Headless.NET.Sdk.Tests.Integrations/AnalyzerRulesAtPackageDefaults.txt after review:\n"
                 + string.Join('\n', uncovered.Select(rule => $"{rule.Key} ({rule.Value})"))
         );
+        Assert.True(
+            staleReviewed.Count == 0,
+            "Reviewed analyzer rules no longer reported by any mandatory package:\n" + string.Join('\n', staleReviewed)
+        );
+        Assert.True(
+            staleTuned.Count == 0,
+            "Configured analyzer rules no longer reported by any mandatory package:\n" + string.Join('\n', staleTuned)
+        );
+    }
+
+    [Fact]
+    public void formatting_analyzer_policy_should_enable_only_csharpier_compatible_rules()
+    {
+        var repositoryRoot = TestRepository.FindRoot("formatting analyzer policy");
+        var version = TestRepository.ReadCentralPackageVersion("Roslynator.Formatting.Analyzers");
+        var formattingRules = LoadSupportedDiagnosticIds("Roslynator.Formatting.Analyzers", version);
+        string[] expectedRules =
+        [
+            "RCS0001=suggestion",
+            "RCS0002=suggestion",
+            "RCS0003=suggestion",
+            "RCS0005=suggestion",
+            "RCS0006=suggestion",
+            "RCS0008=suggestion",
+            "RCS0009=suggestion",
+            "RCS0010=suggestion",
+            "RCS0012=suggestion",
+            "RCS0045=suggestion",
+            "RCS0046=suggestion",
+            "RCS0056=suggestion",
+            "RCS0057=suggestion",
+            "RCS0058=suggestion",
+        ];
+
+        foreach (var fileName in new[] { "Headless.NET.Sdk.Analyzers.editorconfig", "editorconfig.txt" })
+        {
+            var analyzerConfig = File.ReadAllText(
+                Path.Combine(repositoryRoot, "src", "Headless.NET.Sdk", "configurations", fileName)
+            );
+            var configuredFormattingRules = Regex
+                .Matches(analyzerConfig, @"dotnet_diagnostic\.([A-Za-z0-9]+)\.severity\s*=\s*([a-z]+)")
+                .Select(match => (RuleId: match.Groups[1].Value, Severity: match.Groups[2].Value))
+                .Where(setting => formattingRules.Contains(setting.RuleId, StringComparer.OrdinalIgnoreCase))
+                .OrderBy(setting => setting.RuleId, StringComparer.Ordinal)
+                .Select(setting => $"{setting.RuleId}={setting.Severity}")
+                .ToArray();
+
+            Assert.Equal(expectedRules, configuredFormattingRules);
+            Assert.Matches(@"(?m)^roslynator_max_line_length\s*=\s*120\s*$", analyzerConfig);
+            Assert.DoesNotMatch(@"(?m)^dotnet_diagnostic\.RCS0007\.severity\s*=", analyzerConfig);
+            Assert.DoesNotMatch(@"(?m)^dotnet_diagnostic\.RCS0011\.severity\s*=", analyzerConfig);
+        }
     }
 
     private static HashSet<string> ReadTunedRuleIds(string repositoryRoot)

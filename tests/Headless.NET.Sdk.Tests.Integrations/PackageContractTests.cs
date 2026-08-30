@@ -74,12 +74,13 @@ public sealed class PackageContractTests(HeadlessSdkPackageFixture fixture)
         ["AsyncFixer"] = "[2.1.0]",
         ["Asyncify"] = "[0.9.7]",
         ["ErrorProne.NET.CoreAnalyzers"] = "[0.1.2]",
-        ["Meziantou.Analyzer"] = "[3.0.165]",
+        ["Meziantou.Analyzer"] = "[3.0.177]",
         ["Microsoft.CodeAnalysis.BannedApiAnalyzers"] = "[5.6.0]",
         ["Microsoft.Sbom.Targets"] = "[4.1.5]",
         ["Microsoft.VisualStudio.Threading.Analyzers"] = "[18.7.23]",
         ["ReflectionAnalyzers"] = "[0.3.1]",
-        ["Roslynator.Analyzers"] = "[4.16.1]",
+        ["Roslynator.Analyzers"] = "[5.0.0]",
+        ["Roslynator.Formatting.Analyzers"] = "[5.0.0]",
         ["SmartAnalyzers.MultithreadingAnalyzer"] = "[1.1.31]",
     };
 

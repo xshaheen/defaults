@@ -31,6 +31,7 @@ public sealed class HeadlessSdkPackageFixture : IAsyncLifetime
             "Microsoft.VisualStudio.Threading.Analyzers",
             "ReflectionAnalyzers",
             "Roslynator.Analyzers",
+            "Roslynator.Formatting.Analyzers",
             "SmartAnalyzers.MultithreadingAnalyzer",
         ];
 

@@ -139,6 +139,7 @@ public sealed partial class SdkIntegrationTests
         AssertImplicitAnalyzerReference(implicitAnalyzerReferences, "Microsoft.VisualStudio.Threading.Analyzers");
         AssertImplicitAnalyzerReference(implicitAnalyzerReferences, "SmartAnalyzers.MultithreadingAnalyzer");
         AssertImplicitAnalyzerReference(implicitAnalyzerReferences, "Roslynator.Analyzers");
+        AssertImplicitAnalyzerReference(implicitAnalyzerReferences, "Roslynator.Formatting.Analyzers");
         AssertImplicitAnalyzerReference(implicitAnalyzerReferences, "ReflectionAnalyzers");
         AssertImplicitAnalyzerReference(implicitAnalyzerReferences, "ErrorProne.NET.CoreAnalyzers");
 
@@ -210,6 +211,7 @@ public sealed partial class SdkIntegrationTests
             "Microsoft.VisualStudio.Threading.Analyzers",
             "SmartAnalyzers.MultithreadingAnalyzer",
             "Roslynator.Analyzers",
+            "Roslynator.Formatting.Analyzers",
             "ReflectionAnalyzers",
             "ErrorProne.NET.CoreAnalyzers",
         };

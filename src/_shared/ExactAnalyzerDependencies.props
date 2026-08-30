@@ -19,6 +19,7 @@
     <PackageVersion Remove="Microsoft.VisualStudio.Threading.Analyzers" />
     <PackageVersion Remove="SmartAnalyzers.MultithreadingAnalyzer" />
     <PackageVersion Remove="Roslynator.Analyzers" />
+    <PackageVersion Remove="Roslynator.Formatting.Analyzers" />
     <PackageVersion Remove="ReflectionAnalyzers" />
     <PackageVersion Remove="ErrorProne.NET.CoreAnalyzers" />
   </ItemGroup>
@@ -63,6 +64,12 @@
     <PackageReference
       Update="Roslynator.Analyzers"
       VersionOverride="[$(_HeadlessRoslynatorAnalyzersVersion)]"
+      PrivateAssets="none"
+      IncludeAssets="all"
+    />
+    <PackageReference
+      Update="Roslynator.Formatting.Analyzers"
+      VersionOverride="[$(_HeadlessRoslynatorFormattingAnalyzersVersion)]"
       PrivateAssets="none"
       IncludeAssets="all"
     />

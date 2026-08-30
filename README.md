@@ -209,11 +209,11 @@ the SDK without depending on itself. The other nine analyzer references and all 
 still apply.
 
 `Roslynator.Formatting.Analyzers` complements CSharpier without becoming a second formatter. The
-SDK enables only file-format guardrails as suggestions: LF newlines (`RCS0045`), spaces instead of
-tabs (`RCS0046`), the 120-character line limit (`RCS0056`), and normalized whitespace at the start
-and end of files (`RCS0057`/`RCS0058`). Brace, indentation, wrapping, and blank-line layout rules
-remain disabled at package defaults so CSharpier stays authoritative. Consumers that want stricter
-blank-line enforcement can explicitly enable `RCS0063`, Roslynator 5's replacement for `RCS1036`.
+SDK enables file-format guardrails and structural blank-line suggestions around statements
+(`RCS0001`/`RCS0008`), regions (`RCS0002`/`RCS0005`), using lists (`RCS0003`/`RCS0006`), and
+declarations or documentation (`RCS0009`/`RCS0010`/`RCS0012`). CSharpier preserves these boundaries.
+Accessor rules `RCS0007` and `RCS0011` remain disabled because CSharpier removes those blank lines;
+brace, indentation, wrapping, and blank-line removal rules also remain at package defaults.
 
 The bundled general and Newtonsoft.Json banned-symbol lists are enabled by default. Consumers can disable the complete banned-symbol policy with `DisableSupportBannedSymbols=true`, or disable either list independently through `IncludeDefaultBannedSymbols=false` and `BannedNewtonsoftJsonSymbols=false`. The `Microsoft.CodeAnalysis.BannedApiAnalyzers` package remains part of the analyzer infrastructure.
 

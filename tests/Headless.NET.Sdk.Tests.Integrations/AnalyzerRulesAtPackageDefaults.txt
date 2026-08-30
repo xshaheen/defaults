@@ -440,17 +440,8 @@ ROS0003
 Roslynator.FindSymbols.FindSymbolAnalyzer # internal find-symbols infrastructure, not a buildable rule
 
 # --- Roslynator.Formatting.Analyzers ---
-RCS0001
-RCS0002
-RCS0003
-RCS0005
-RCS0006
 RCS0007
-RCS0008
-RCS0009
-RCS0010
 RCS0011
-RCS0012
 RCS0013
 RCS0015
 RCS0016

@@ -115,38 +115,47 @@ public sealed class AnalyzerRuleCoverageTests
     }
 
     [Fact]
-    public void formatting_analyzer_policy_should_enable_only_csharpier_compatible_guardrails()
+    public void formatting_analyzer_policy_should_enable_only_csharpier_compatible_rules()
     {
         var repositoryRoot = TestRepository.FindRoot("formatting analyzer policy");
-        var analyzerConfigPath = Path.Combine(
-            repositoryRoot,
-            "src",
-            "Headless.NET.Sdk",
-            "configurations",
-            "Headless.NET.Sdk.Analyzers.editorconfig"
-        );
-        var analyzerConfig = File.ReadAllText(analyzerConfigPath);
         var version = TestRepository.ReadCentralPackageVersion("Roslynator.Formatting.Analyzers");
         var formattingRules = LoadSupportedDiagnosticIds("Roslynator.Formatting.Analyzers", version);
-        var configuredFormattingRules = Regex
-            .Matches(analyzerConfig, @"dotnet_diagnostic\.([A-Za-z0-9]+)\.severity\s*=\s*([a-z]+)")
-            .Select(match => (RuleId: match.Groups[1].Value, Severity: match.Groups[2].Value))
-            .Where(setting => formattingRules.Contains(setting.RuleId, StringComparer.OrdinalIgnoreCase))
-            .OrderBy(setting => setting.RuleId, StringComparer.Ordinal)
-            .Select(setting => $"{setting.RuleId}={setting.Severity}")
-            .ToArray();
+        string[] expectedRules =
+        [
+            "RCS0001=suggestion",
+            "RCS0002=suggestion",
+            "RCS0003=suggestion",
+            "RCS0005=suggestion",
+            "RCS0006=suggestion",
+            "RCS0008=suggestion",
+            "RCS0009=suggestion",
+            "RCS0010=suggestion",
+            "RCS0012=suggestion",
+            "RCS0045=suggestion",
+            "RCS0046=suggestion",
+            "RCS0056=suggestion",
+            "RCS0057=suggestion",
+            "RCS0058=suggestion",
+        ];
 
-        Assert.Equal(
-            [
-                "RCS0045=suggestion",
-                "RCS0046=suggestion",
-                "RCS0056=suggestion",
-                "RCS0057=suggestion",
-                "RCS0058=suggestion",
-            ],
-            configuredFormattingRules
-        );
-        Assert.Matches(@"(?m)^roslynator_max_line_length\s*=\s*120\s*$", analyzerConfig);
+        foreach (var fileName in new[] { "Headless.NET.Sdk.Analyzers.editorconfig", "editorconfig.txt" })
+        {
+            var analyzerConfig = File.ReadAllText(
+                Path.Combine(repositoryRoot, "src", "Headless.NET.Sdk", "configurations", fileName)
+            );
+            var configuredFormattingRules = Regex
+                .Matches(analyzerConfig, @"dotnet_diagnostic\.([A-Za-z0-9]+)\.severity\s*=\s*([a-z]+)")
+                .Select(match => (RuleId: match.Groups[1].Value, Severity: match.Groups[2].Value))
+                .Where(setting => formattingRules.Contains(setting.RuleId, StringComparer.OrdinalIgnoreCase))
+                .OrderBy(setting => setting.RuleId, StringComparer.Ordinal)
+                .Select(setting => $"{setting.RuleId}={setting.Severity}")
+                .ToArray();
+
+            Assert.Equal(expectedRules, configuredFormattingRules);
+            Assert.Matches(@"(?m)^roslynator_max_line_length\s*=\s*120\s*$", analyzerConfig);
+            Assert.DoesNotMatch(@"(?m)^dotnet_diagnostic\.RCS0007\.severity\s*=", analyzerConfig);
+            Assert.DoesNotMatch(@"(?m)^dotnet_diagnostic\.RCS0011\.severity\s*=", analyzerConfig);
+        }
     }
 
     private static HashSet<string> ReadTunedRuleIds(string repositoryRoot)

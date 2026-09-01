@@ -206,6 +206,7 @@ MA0212
 MA0213
 MA0214
 MA0215
+MA0216 # informational C# closed-type simplification; accept the upstream default
 MA0217 # disabled by default upstream; static-lambda enforcement remains opt-in
 
 # --- SmartAnalyzers.MultithreadingAnalyzer ---

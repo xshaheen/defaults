@@ -74,6 +74,8 @@ indent_size = 2
             TestContext.Current.CancellationToken
         );
         Assert.Contains("# Common Settings", copiedEditorConfig, StringComparison.Ordinal);
+        Assert.Contains("MA0002.report_only_non_ordinal = true", copiedEditorConfig, StringComparison.Ordinal);
+        Assert.Contains("dotnet_diagnostic.MA0002.severity = warning", copiedEditorConfig, StringComparison.Ordinal);
 
         // Selecting only .editorconfig must not pull in the other files.
         Assert.False(

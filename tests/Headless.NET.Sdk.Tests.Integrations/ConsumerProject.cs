@@ -80,6 +80,7 @@ internal sealed class ConsumerProject : IAsyncDisposable
         bool useCentralPackageManagement = false,
         IReadOnlyDictionary<string, string>? extraProperties = null,
         IReadOnlyDictionary<string, string>? extraPackageReferences = null,
+        IReadOnlyCollection<string>? evaluationOnlyPackageReferences = null,
         IReadOnlyDictionary<string, string>? additionalFiles = null,
         IReadOnlyDictionary<string, string>? environmentOverrides = null,
         bool useHostFallbackFolder = true
@@ -123,7 +124,8 @@ internal sealed class ConsumerProject : IAsyncDisposable
                 packageReferenceId,
                 useCentralPackageManagement,
                 extraProperties,
-                extraPackageReferences
+                extraPackageReferences,
+                evaluationOnlyPackageReferences
             ),
             Encoding.UTF8,
             cancellationToken
@@ -305,7 +307,8 @@ public sealed class Class1;
         string packageReferenceId,
         bool useCentralPackageManagement,
         IReadOnlyDictionary<string, string>? extraProperties,
-        IReadOnlyDictionary<string, string>? extraPackageReferences
+        IReadOnlyDictionary<string, string>? extraPackageReferences,
+        IReadOnlyCollection<string>? evaluationOnlyPackageReferences
     )
     {
         var propertyLines = new List<string>();
@@ -380,13 +383,30 @@ public sealed class Class1;
                       </ItemGroup>
                     """;
 
+        var evaluationOnlyPackageReferenceBlock = evaluationOnlyPackageReferences is null
+            ? string.Empty
+            : $"""
+
+                  <Target Name="_HeadlessAddEvaluationOnlyPackageReferences">
+                    <ItemGroup>
+                {string.Join(
+                    Environment.NewLine,
+                    evaluationOnlyPackageReferences.Select(name => $"      <PackageReference Include=\"{name}\" />")
+                )}
+                    </ItemGroup>
+                  </Target>
+                """;
+        var evaluationOnlyPackageReferenceDependency = evaluationOnlyPackageReferences is null
+            ? string.Empty
+            : "_HeadlessAddEvaluationOnlyPackageReferences;";
+
         return $$"""
             <Project Sdk="{{sdk}}">
               <PropertyGroup>
                 <Nullable>enable</Nullable>{{extraPropertyBlock}}
-              </PropertyGroup>{{packageReferenceBlock}}
+              </PropertyGroup>{{packageReferenceBlock}}{{evaluationOnlyPackageReferenceBlock}}
 
-              <Target Name="WriteHeadlessProperties">
+              <Target Name="WriteHeadlessProperties" DependsOnTargets="{{evaluationOnlyPackageReferenceDependency}}$(_HeadlessXunitEntryPointDisableWarningsTarget)">
                 <PropertyGroup>
                   <_HeadlessEvaluatedEditorConfigFiles>@(EditorConfigFiles, '|')</_HeadlessEvaluatedEditorConfigFiles>
                   <_HeadlessEvaluatedAdditionalFiles>@(AdditionalFiles->'%(Identity)', '|')</_HeadlessEvaluatedAdditionalFiles>
@@ -397,6 +417,7 @@ public sealed class Class1;
                   <_HeadlessEvaluatedContainerImageTags>$([MSBuild]::Escape('$(ContainerImageTags)'))</_HeadlessEvaluatedContainerImageTags>
                   <!-- Web/Blazor SDKs append to Features; escape so the semicolons survive the line split. -->
                   <_HeadlessEvaluatedFeatures>$([MSBuild]::Escape('$(Features)'))</_HeadlessEvaluatedFeatures>
+                  <_HeadlessEvaluatedDefineConstants>$([MSBuild]::Escape('$(DefineConstants)'))</_HeadlessEvaluatedDefineConstants>
                 </PropertyGroup>
                 <ItemGroup>
                   <_HeadlessEvaluatedNoWarnItems Include="$(NoWarn)" />
@@ -406,7 +427,7 @@ public sealed class Class1;
                 </PropertyGroup>
                 <WriteLinesToFile
                   File="$(MSBuildProjectDirectory)/headless-properties.txt"
-                  Lines="TargetFramework=$(TargetFramework);RollForward=$(RollForward);PackAsTool=$(PackAsTool);HeadlessSdkName=$(HeadlessSdkName);HeadlessSdkProjectType=$(HeadlessSdkProjectType);HeadlessIsLlmContext=$(HeadlessIsLlmContext);ContinuousIntegrationBuild=$(ContinuousIntegrationBuild);CodeAnalysisTreatWarningsAsErrors=$(CodeAnalysisTreatWarningsAsErrors);WarningLevel=$(WarningLevel);Features=$(_HeadlessEvaluatedFeatures);Deterministic=$(Deterministic);AnalysisLevel=$(AnalysisLevel);AnalysisMode=$(AnalysisMode);IsTestHarnessProject=$(IsTestHarnessProject);IsTestProject=$(IsTestProject);IsTestingPlatformApplication=$(IsTestingPlatformApplication);GenerateRuntimeConfigurationFiles=$(GenerateRuntimeConfigurationFiles);GenerateSBOM=$(GenerateSBOM);IsPackable=$(IsPackable);EnablePackageValidation=$(EnablePackageValidation);NoWarn=$(_HeadlessEvaluatedNoWarn);EditorConfigFiles=$(_HeadlessEvaluatedEditorConfigFiles);AdditionalFiles=$(_HeadlessEvaluatedAdditionalFiles);NoneItems=$(_HeadlessEvaluatedNoneItems);PackageReferences=$(_HeadlessEvaluatedPackageReferences);MSBuildTreatWarningsAsErrors=$(MSBuildTreatWarningsAsErrors);RestoreLockedMode=$(RestoreLockedMode);HeadlessEmitInternalsVisibleToAttributes=$(HeadlessEmitInternalsVisibleToAttributes);InternalsVisibleTo=$(_HeadlessEvaluatedInternalsVisibleTo);TestingPlatformCommandLineArguments=$(TestingPlatformCommandLineArguments);PackageTags=$(PackageTags);PublishRepositoryUrl=$(PublishRepositoryUrl);RepositoryType=$(RepositoryType);RepositoryBranch=$(RepositoryBranch);IncludeSymbols=$(IncludeSymbols);SymbolPackageFormat=$(SymbolPackageFormat);DebugType=$(DebugType);HeadlessSymbolFormat=$(HeadlessSymbolFormat);Copyright=$(Copyright);RuntimeHostConfigurationOptions=$(_HeadlessEvaluatedRuntimeHostOptions);EnableSdkContainerSupport=$(EnableSdkContainerSupport);ContainerRegistry=$(ContainerRegistry);ContainerRepository=$(ContainerRepository);ContainerImageTagsMainVersionPrefix=$(ContainerImageTagsMainVersionPrefix);ContainerImageTagsIncludeLatest=$(ContainerImageTagsIncludeLatest);ContainerImageTags=$(_HeadlessEvaluatedContainerImageTags)"
+                  Lines="TargetFramework=$(TargetFramework);RollForward=$(RollForward);PackAsTool=$(PackAsTool);HeadlessSdkName=$(HeadlessSdkName);HeadlessSdkProjectType=$(HeadlessSdkProjectType);HeadlessIsLlmContext=$(HeadlessIsLlmContext);ContinuousIntegrationBuild=$(ContinuousIntegrationBuild);CodeAnalysisTreatWarningsAsErrors=$(CodeAnalysisTreatWarningsAsErrors);WarningLevel=$(WarningLevel);Features=$(_HeadlessEvaluatedFeatures);Deterministic=$(Deterministic);AnalysisLevel=$(AnalysisLevel);AnalysisMode=$(AnalysisMode);IsTestHarnessProject=$(IsTestHarnessProject);IsTestProject=$(IsTestProject);IsTestingPlatformApplication=$(IsTestingPlatformApplication);GenerateRuntimeConfigurationFiles=$(GenerateRuntimeConfigurationFiles);GenerateSBOM=$(GenerateSBOM);IsPackable=$(IsPackable);EnablePackageValidation=$(EnablePackageValidation);NoWarn=$(_HeadlessEvaluatedNoWarn);EditorConfigFiles=$(_HeadlessEvaluatedEditorConfigFiles);AdditionalFiles=$(_HeadlessEvaluatedAdditionalFiles);NoneItems=$(_HeadlessEvaluatedNoneItems);PackageReferences=$(_HeadlessEvaluatedPackageReferences);MSBuildTreatWarningsAsErrors=$(MSBuildTreatWarningsAsErrors);RestoreLockedMode=$(RestoreLockedMode);HeadlessEmitInternalsVisibleToAttributes=$(HeadlessEmitInternalsVisibleToAttributes);InternalsVisibleTo=$(_HeadlessEvaluatedInternalsVisibleTo);TestingPlatformCommandLineArguments=$(TestingPlatformCommandLineArguments);MinimumExpectedTests=$(MinimumExpectedTests);EnableXunitEntryPointDisableWarnings=$(EnableXunitEntryPointDisableWarnings);DefineConstants=$(_HeadlessEvaluatedDefineConstants);PackageTags=$(PackageTags);PublishRepositoryUrl=$(PublishRepositoryUrl);RepositoryType=$(RepositoryType);RepositoryBranch=$(RepositoryBranch);IncludeSymbols=$(IncludeSymbols);SymbolPackageFormat=$(SymbolPackageFormat);DebugType=$(DebugType);HeadlessSymbolFormat=$(HeadlessSymbolFormat);Copyright=$(Copyright);RuntimeHostConfigurationOptions=$(_HeadlessEvaluatedRuntimeHostOptions);EnableSdkContainerSupport=$(EnableSdkContainerSupport);ContainerRegistry=$(ContainerRegistry);ContainerRepository=$(ContainerRepository);ContainerImageTagsMainVersionPrefix=$(ContainerImageTagsMainVersionPrefix);ContainerImageTagsIncludeLatest=$(ContainerImageTagsIncludeLatest);ContainerImageTags=$(_HeadlessEvaluatedContainerImageTags)"
                   Overwrite="true"
                 />
               </Target>

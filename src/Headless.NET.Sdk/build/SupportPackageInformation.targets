@@ -45,6 +45,20 @@
       Condition="'$(DisableReadme)' != 'true' and '$(PackageReadmeFile)' == '' and '$(_PackageReadmeFilePath)' != ''"
       >README.md</PackageReadmeFile>
 
+    <!-- Third-party notices -->
+    <_PackageThirdPartyNoticesPath
+      Condition="'$(_PackageThirdPartyNoticesPath)' == '' and Exists('$(MSBuildProjectDirectory)/THIRD-PARTY-NOTICES.TXT')"
+      >$(MSBuildProjectDirectory)/THIRD-PARTY-NOTICES.TXT</_PackageThirdPartyNoticesPath>
+    <_PackageThirdPartyNoticesPath
+      Condition="'$(_PackageThirdPartyNoticesPath)' == '' and Exists('$(MSBuildProjectDirectory)/THIRD-PARTY-NOTICES.txt')"
+      >$(MSBuildProjectDirectory)/THIRD-PARTY-NOTICES.txt</_PackageThirdPartyNoticesPath>
+    <_PackageThirdPartyNoticesPath
+      Condition="'$(_PackageThirdPartyNoticesPath)' == '' and Exists('$(MSBuildProjectDirectory)/THIRD-PARTY-NOTICES.MD')"
+      >$(MSBuildProjectDirectory)/THIRD-PARTY-NOTICES.MD</_PackageThirdPartyNoticesPath>
+    <_PackageThirdPartyNoticesPath
+      Condition="'$(_PackageThirdPartyNoticesPath)' == '' and Exists('$(MSBuildProjectDirectory)/THIRD-PARTY-NOTICES.md')"
+      >$(MSBuildProjectDirectory)/THIRD-PARTY-NOTICES.md</_PackageThirdPartyNoticesPath>
+
     <!-- Logo -->
     <PackageIcon
       Condition="'$(DisablePackageLogo)' != 'true'
@@ -174,16 +188,12 @@
     />
 
     <!-- Third-party notices -->
-    <_PackageThirdPartyNoticesPath
-      Include="$(MSBuildProjectDirectory)/THIRD-PARTY-NOTICES.TXT"
-      Condition="Exists('$(MSBuildProjectDirectory)/THIRD-PARTY-NOTICES.TXT')"
-    />
     <None
-      Include="@(_PackageThirdPartyNoticesPath)"
+      Include="$(_PackageThirdPartyNoticesPath)"
       Pack="true"
       PackagePath=""
       Visible="false"
-      Condition="Exists(@(_PackageThirdPartyNoticesPath))"
+      Condition="'$(_PackageThirdPartyNoticesPath)' != ''"
     />
 
     <!-- Logo -->

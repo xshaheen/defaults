@@ -94,6 +94,10 @@
     silently dropped: no coverage, TRX, or dumps). Coverage settings use MTP's
     "coverage-settings" runner flag.
   -->
+  <PropertyGroup>
+    <MinimumExpectedTests Condition="'$(MinimumExpectedTests)' == ''">1</MinimumExpectedTests>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(EnableDefaultTestSettings)' != 'false'">
     <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --report-trx</TestingPlatformCommandLineArguments>
     <TestingPlatformCommandLineArguments Condition="'$(EnableCodeCoverage)' == 'true'"
@@ -102,8 +106,36 @@
       >$(TestingPlatformCommandLineArguments) --coverage-settings &quot;$(HeadlessCoverageSettingsPath)&quot;</TestingPlatformCommandLineArguments>
     <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --crashdump --crashdump-type mini</TestingPlatformCommandLineArguments>
     <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --hangdump --hangdump-timeout 10m --hangdump-type mini</TestingPlatformCommandLineArguments>
-    <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --minimum-expected-tests 1</TestingPlatformCommandLineArguments>
+    <TestingPlatformCommandLineArguments
+      Condition="'$(MinimumExpectedTests)' != '' AND '$(MinimumExpectedTests)' != '0'"
+      >$(TestingPlatformCommandLineArguments) --minimum-expected-tests $(MinimumExpectedTests)</TestingPlatformCommandLineArguments>
   </PropertyGroup>
+
+  <!-- PackageReference is an item list, so conditional constant configuration must run in a target. -->
+  <Target
+    Name="_HeadlessConfigureXunitEntryPointDisableWarnings"
+    BeforeTargets="CoreCompile"
+    Condition="'$(EnableXunitEntryPointDisableWarnings)' != 'false' AND (
+      @(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3')) == 'true' OR
+      @(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v1')) == 'true' OR
+      @(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-v2')) == 'true' OR
+      @(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3.mtp-off')) == 'true' OR
+      @(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3.core')) == 'true' OR
+      @(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3.core.mtp-v2')) == 'true' OR
+      @(PackageReference->AnyHaveMetadataValue('Identity', 'xunit.v3.core.mtp-off')) == 'true')"
+  >
+    <PropertyGroup>
+      <EnableXunitEntryPointDisableWarnings Condition="'$(EnableXunitEntryPointDisableWarnings)' == ''"
+        >true</EnableXunitEntryPointDisableWarnings>
+      <_HeadlessXunitEntryPointDisableWarningsAlreadyDefined>$([System.String]::Copy('$(DefineConstants)').Contains('XUNIT_ENTRYPOINT_DISABLE_WARNINGS'))</_HeadlessXunitEntryPointDisableWarningsAlreadyDefined>
+      <DefineConstants
+        Condition="'$(_HeadlessXunitEntryPointDisableWarningsAlreadyDefined)' != 'true' AND '$(MSBuildProjectExtension)' == '.vbproj'"
+        >$(DefineConstants),XUNIT_ENTRYPOINT_DISABLE_WARNINGS=-1</DefineConstants>
+      <DefineConstants
+        Condition="'$(_HeadlessXunitEntryPointDisableWarningsAlreadyDefined)' != 'true' AND '$(MSBuildProjectExtension)' != '.vbproj'"
+        >$(DefineConstants);XUNIT_ENTRYPOINT_DISABLE_WARNINGS</DefineConstants>
+    </PropertyGroup>
+  </Target>
 
   <!-- xUnit MTP implicit using. The test framework remains consumer-selected. -->
   <ItemGroup

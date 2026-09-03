@@ -125,7 +125,7 @@ public sealed partial class SdkIntegrationTests
     }
 
     [Fact]
-    public async Task should_set_mtp_command_line_arguments_when_using_test_project_type_sdk()
+    public async Task should_set_configurable_mtp_command_line_arguments_when_using_test_project_type_sdk()
     {
         await using var project = await ConsumerProject.CreateAsync(
             fixture.PackageVersion,
@@ -140,11 +140,28 @@ public sealed partial class SdkIntegrationTests
         // assignment that silently drops every platform argument.
         var defaults = await project.EvaluateHeadlessPropertiesAsync();
         var args = defaults["TestingPlatformCommandLineArguments"];
+        Assert.Equal("1", defaults["MinimumExpectedTests"]);
         Assert.Contains("--report-trx", args, StringComparison.Ordinal);
         Assert.Contains("--crashdump", args, StringComparison.Ordinal);
         Assert.Contains("--hangdump", args, StringComparison.Ordinal);
-        Assert.Contains("--minimum-expected-tests 1", args, StringComparison.Ordinal);
+        Assert.Equal(1, args.Split("--minimum-expected-tests 1", StringSplitOptions.None).Length - 1);
         Assert.DoesNotContain("--coverage", args, StringComparison.Ordinal);
+
+        var custom = await project.EvaluateHeadlessPropertiesAsync("-p:MinimumExpectedTests=5");
+        Assert.Equal("5", custom["MinimumExpectedTests"]);
+        Assert.Equal(
+            1,
+            custom["TestingPlatformCommandLineArguments"]
+                .Split("--minimum-expected-tests 5", StringSplitOptions.None)
+                .Length - 1
+        );
+
+        var zero = await project.EvaluateHeadlessPropertiesAsync("-p:MinimumExpectedTests=0");
+        Assert.Equal("0", zero["MinimumExpectedTests"]);
+        Assert.DoesNotContain("--minimum-expected-tests", zero["TestingPlatformCommandLineArguments"]);
+
+        var disabled = await project.EvaluateHeadlessPropertiesAsync("-p:EnableDefaultTestSettings=false");
+        Assert.Empty(disabled["TestingPlatformCommandLineArguments"]);
 
         // With coverage enabled, add the MTP coverage and settings arguments.
         var withCoverage = await project.EvaluateHeadlessPropertiesAsync("-p:EnableCodeCoverage=true");
@@ -152,6 +169,69 @@ public sealed partial class SdkIntegrationTests
         Assert.Contains("--coverage", coverageArgs, StringComparison.Ordinal);
         Assert.Contains("--coverage-settings", coverageArgs, StringComparison.Ordinal);
         Assert.Contains("default.runsettings", coverageArgs, StringComparison.Ordinal);
+    }
+
+    [Theory]
+    [InlineData(false, null, "UNRELATED_CONSTANT", "true", 1)]
+    [InlineData(true, null, "UNRELATED_CONSTANT", "true", 1)]
+    [InlineData(true, "false", "UNRELATED_CONSTANT", "false", 0)]
+    [InlineData(false, null, "UNRELATED_CONSTANT;XUNIT_ENTRYPOINT_DISABLE_WARNINGS", "true", 1)]
+    public async Task should_apply_xunit_entrypoint_warning_constant_contract(
+        bool useSdkConsumption,
+        string? optOut,
+        string initialConstants,
+        string expectedEnabled,
+        int expectedConstantCount
+    )
+    {
+        var extraProperties = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["DefineConstants"] = initialConstants,
+        };
+        if (optOut is not null)
+        {
+            extraProperties["EnableXunitEntryPointDisableWarnings"] = optOut;
+        }
+
+        await using var project = await ConsumerProject.CreateAsync(
+            fixture.PackageVersion,
+            fixture.PackageSourceDirectory,
+            sdk: useSdkConsumption ? $"Headless.NET.Sdk.Test/{fixture.PackageVersion}" : "Microsoft.NET.Sdk",
+            includePackageReference: !useSdkConsumption,
+            packageReferenceId: "Headless.NET.Sdk.Test",
+            extraProperties: extraProperties,
+            extraPackageReferences: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["xunit.v3.mtp-v2"] = TestRepository.ReadCentralPackageVersion("xunit.v3.mtp-v2"),
+            }
+        );
+
+        var properties = await project.EvaluateHeadlessPropertiesAsync();
+        var constants = properties["DefineConstants"]
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        Assert.Equal(expectedEnabled, properties["EnableXunitEntryPointDisableWarnings"]);
+        Assert.Contains("UNRELATED_CONSTANT", constants);
+        Assert.Equal(
+            expectedConstantCount,
+            constants.Count(constant => constant == "XUNIT_ENTRYPOINT_DISABLE_WARNINGS")
+        );
+    }
+
+    [Fact]
+    public async Task should_not_infer_xunit_entrypoint_warning_constant_from_test_project_classification()
+    {
+        await using var project = await ConsumerProject.CreateAsync(
+            fixture.PackageVersion,
+            fixture.PackageSourceDirectory,
+            sdk: $"Headless.NET.Sdk.Test/{fixture.PackageVersion}",
+            includePackageReference: false
+        );
+
+        var properties = await project.EvaluateHeadlessPropertiesAsync();
+
+        Assert.Empty(properties["EnableXunitEntryPointDisableWarnings"]);
+        Assert.DoesNotContain("XUNIT_ENTRYPOINT_DISABLE_WARNINGS", properties["DefineConstants"]);
     }
 
     [Fact]

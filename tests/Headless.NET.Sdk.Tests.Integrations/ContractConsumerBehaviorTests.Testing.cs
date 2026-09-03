@@ -45,7 +45,7 @@ public sealed partial class ContractConsumerBehaviorTests
             additionalFiles: new Dictionary<string, string>(StringComparer.Ordinal)
             {
                 ["ContractSmokeTests.cs"] =
-                    "using Xunit; namespace ConsumerProject; public sealed class ContractSmokeTests { [Fact] public void passes() => Assert.True(true); }",
+                    "#if !XUNIT_ENTRYPOINT_DISABLE_WARNINGS\n#error XUNIT_ENTRYPOINT_DISABLE_WARNINGS is not defined\n#endif\nusing Xunit; namespace ConsumerProject; public sealed class ContractSmokeTests { [Fact] public void passes() => Assert.True(true); }",
             }
         );
         await UpdateProjectAsync(

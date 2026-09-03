@@ -74,7 +74,8 @@ maintain a consumer-owned runsettings file.
 - Executable MTP host by default, with `IsTestProject=true`, `IsPackable=false`, and `IsPublishable=false`.
 - Microsoft Testing Platform only; VSTest and `Microsoft.NET.Test.Sdk` are not injected.
 - Restore-visible crash dump, hang dump, hot reload, retry, TRX, and coverage extensions.
-- Default TRX output, crash and hang dumps, and a minimum expected test count.
+- Default TRX output, crash and hang dumps, and `MinimumExpectedTests=1`. Set it to a positive value to change the MTP guard, or `0` to omit only the SDK-supplied argument; omission does not guarantee that a zero-test run succeeds. `EnableDefaultTestSettings=false` removes all SDK-owned MTP arguments.
+- A direct supported xUnit v3 package reference adds `XUNIT_ENTRYPOINT_DISABLE_WARNINGS` once while preserving other constants. Set `EnableXunitEntryPointDisableWarnings=false` to opt out; test-project classification alone does not enable it.
 - Coverage enabled on CI, with `HeadlessCoverageSettingsPath` exposing the packaged denominator policy, and analyzer work skipped during the test-build phase unless explicitly retained.
 - Mandatory Headless analyzer infrastructure, configurable banned-API policy, and mandatory audit and CI policies with narrow test-code severity relaxations.
 

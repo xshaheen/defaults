@@ -247,6 +247,8 @@ the listed default; explicit values win unless the behavior is identified as man
 | `EnableCodeCoverage` | `true` on CI, otherwise unset | Adds MTP coverage arguments when `true`. |
 | `HeadlessCoverageSettingsPath` | packaged Test SDK path | Absolute path to the SDK-owned `default.runsettings`; query this evaluated property when an external runner needs the canonical coverage denominator policy. |
 | `EnableDefaultTestSettings` | enabled unless `false` | Set `false` to own all MTP command-line defaults. |
+| `MinimumExpectedTests` | `1` | Sets the MTP minimum-test guard. Set `0` to omit only the SDK-supplied `--minimum-expected-tests` argument; this does not guarantee that a zero-test run succeeds. |
+| `EnableXunitEntryPointDisableWarnings` | `true` when a supported xUnit v3 package is directly referenced | Set `false` to prevent the SDK from adding `XUNIT_ENTRYPOINT_DISABLE_WARNINGS`. |
 | `OptimizeTestRun` | enabled unless `false` | Set `false` to keep analyzers enabled during MTP's test-build phase. |
 | `DisableSupportPackageInformation` | `false` | Set `true` to opt out of Headless package metadata and symbol policy. |
 | `SearchReadmeFileAbove` | `false` | Searches parent directories for a package README. |

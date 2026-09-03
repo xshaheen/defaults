@@ -112,6 +112,10 @@
   </PropertyGroup>
 
   <!-- PackageReference is an item list, so conditional constant configuration must run in a target. -->
+  <PropertyGroup>
+    <_HeadlessXunitEntryPointDisableWarningsTarget>_HeadlessConfigureXunitEntryPointDisableWarnings</_HeadlessXunitEntryPointDisableWarningsTarget>
+  </PropertyGroup>
+
   <Target
     Name="_HeadlessConfigureXunitEntryPointDisableWarnings"
     BeforeTargets="CoreCompile"

@@ -406,7 +406,7 @@ public sealed class Class1;
                 <Nullable>enable</Nullable>{{extraPropertyBlock}}
               </PropertyGroup>{{packageReferenceBlock}}{{evaluationOnlyPackageReferenceBlock}}
 
-              <Target Name="WriteHeadlessProperties" DependsOnTargets="{{evaluationOnlyPackageReferenceDependency}}_HeadlessConfigureXunitEntryPointDisableWarnings">
+              <Target Name="WriteHeadlessProperties" DependsOnTargets="{{evaluationOnlyPackageReferenceDependency}}$(_HeadlessXunitEntryPointDisableWarningsTarget)">
                 <PropertyGroup>
                   <_HeadlessEvaluatedEditorConfigFiles>@(EditorConfigFiles, '|')</_HeadlessEvaluatedEditorConfigFiles>
                   <_HeadlessEvaluatedAdditionalFiles>@(AdditionalFiles->'%(Identity)', '|')</_HeadlessEvaluatedAdditionalFiles>

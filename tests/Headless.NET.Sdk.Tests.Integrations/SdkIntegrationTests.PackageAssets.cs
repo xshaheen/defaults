@@ -163,6 +163,8 @@ public sealed partial class SdkIntegrationTests
             regularAnalyzerConfig,
             StringComparison.Ordinal
         );
+        Assert.Contains("MA0002.report_only_non_ordinal = true", regularAnalyzerConfig, StringComparison.Ordinal);
+        Assert.Contains("dotnet_diagnostic.MA0002.severity = warning", regularAnalyzerConfig, StringComparison.Ordinal);
         Assert.Contains("dotnet_diagnostic.CA1028.severity = none", testAnalyzerConfig, StringComparison.Ordinal);
         Assert.Contains("dotnet_diagnostic.CA2201.severity = none", testAnalyzerConfig, StringComparison.Ordinal);
         Assert.Contains("dotnet_diagnostic.CA2227.severity = none", testAnalyzerConfig, StringComparison.Ordinal);

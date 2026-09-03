@@ -390,16 +390,8 @@ public sealed partial class SdkIntegrationTests
             additionalFiles: new Dictionary<string, string>(StringComparer.Ordinal)
             {
                 ["THIRD-PARTY-NOTICES.TXT"] = "Preferred notices",
-                ["THIRD-PARTY-NOTICES.txt"] = "Fallback notices",
+                ["THIRD-PARTY-NOTICES.md"] = "Fallback notices",
             }
-        );
-
-        var distinctNoticeFiles = Directory
-            .EnumerateFiles(project.RootDirectory, "THIRD-PARTY-NOTICES.*", SearchOption.TopDirectoryOnly)
-            .Count();
-        Assert.SkipUnless(
-            distinctNoticeFiles == 2,
-            "The filesystem does not distinguish THIRD-PARTY-NOTICES.TXT from THIRD-PARTY-NOTICES.txt."
         );
 
         var result = await project.RunDotNetAsync(

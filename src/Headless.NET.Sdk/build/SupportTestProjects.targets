@@ -127,7 +127,10 @@
     <PropertyGroup>
       <EnableXunitEntryPointDisableWarnings Condition="'$(EnableXunitEntryPointDisableWarnings)' == ''"
         >true</EnableXunitEntryPointDisableWarnings>
-      <_HeadlessXunitEntryPointDisableWarningsAlreadyDefined>$([System.String]::Copy('$(DefineConstants)').Contains('XUNIT_ENTRYPOINT_DISABLE_WARNINGS'))</_HeadlessXunitEntryPointDisableWarningsAlreadyDefined>
+      <_HeadlessXunitEntryPointDisableWarningsAlreadyDefined Condition="'$(MSBuildProjectExtension)' == '.vbproj'"
+        >$([System.String]::Copy(',$(DefineConstants),').Contains(',XUNIT_ENTRYPOINT_DISABLE_WARNINGS=-1,'))</_HeadlessXunitEntryPointDisableWarningsAlreadyDefined>
+      <_HeadlessXunitEntryPointDisableWarningsAlreadyDefined Condition="'$(MSBuildProjectExtension)' != '.vbproj'"
+        >$([System.String]::Copy(';$(DefineConstants);').Contains(';XUNIT_ENTRYPOINT_DISABLE_WARNINGS;'))</_HeadlessXunitEntryPointDisableWarningsAlreadyDefined>
       <DefineConstants
         Condition="'$(_HeadlessXunitEntryPointDisableWarningsAlreadyDefined)' != 'true' AND '$(MSBuildProjectExtension)' == '.vbproj'"
         >$(DefineConstants),XUNIT_ENTRYPOINT_DISABLE_WARNINGS=-1</DefineConstants>

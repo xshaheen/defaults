@@ -172,15 +172,56 @@ public sealed partial class SdkIntegrationTests
     }
 
     [Theory]
-    [InlineData(false, null, "UNRELATED_CONSTANT", "true", 1)]
-    [InlineData(true, null, "UNRELATED_CONSTANT", "true", 1)]
-    [InlineData(true, "false", "UNRELATED_CONSTANT", "false", 0)]
-    [InlineData(false, null, "UNRELATED_CONSTANT;XUNIT_ENTRYPOINT_DISABLE_WARNINGS", "true", 1)]
+    [InlineData("xunit.v3", false)]
+    [InlineData("xunit.v3", true)]
+    [InlineData("xunit.v3.mtp-v1", false)]
+    [InlineData("xunit.v3.mtp-v1", true)]
+    [InlineData("xunit.v3.mtp-v2", false)]
+    [InlineData("xunit.v3.mtp-v2", true)]
+    [InlineData("xunit.v3.mtp-off", false)]
+    [InlineData("xunit.v3.mtp-off", true)]
+    [InlineData("xunit.v3.core", false)]
+    [InlineData("xunit.v3.core", true)]
+    [InlineData("xunit.v3.core.mtp-v2", false)]
+    [InlineData("xunit.v3.core.mtp-v2", true)]
+    [InlineData("xunit.v3.core.mtp-off", false)]
+    [InlineData("xunit.v3.core.mtp-off", true)]
     public async Task should_apply_xunit_entrypoint_warning_constant_contract(
-        bool useSdkConsumption,
+        string xunitPackageReference,
+        bool useSdkConsumption
+    )
+    {
+        var extraProperties = new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["DefineConstants"] = "UNRELATED_CONSTANT",
+        };
+
+        await using var project = await ConsumerProject.CreateAsync(
+            fixture.PackageVersion,
+            fixture.PackageSourceDirectory,
+            sdk: useSdkConsumption ? $"Headless.NET.Sdk.Test/{fixture.PackageVersion}" : "Microsoft.NET.Sdk",
+            includePackageReference: !useSdkConsumption,
+            packageReferenceId: "Headless.NET.Sdk.Test",
+            extraProperties: extraProperties,
+            evaluationOnlyPackageReferences: [xunitPackageReference]
+        );
+
+        var properties = await project.EvaluateHeadlessPropertiesAsync();
+        var constants = properties["DefineConstants"]
+            .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        Assert.Equal("true", properties["EnableXunitEntryPointDisableWarnings"]);
+        Assert.Contains("UNRELATED_CONSTANT", constants);
+        Assert.Single(constants, constant => constant == "XUNIT_ENTRYPOINT_DISABLE_WARNINGS");
+    }
+
+    [Theory]
+    [InlineData("false", "UNRELATED_CONSTANT", 0)]
+    [InlineData(null, "UNRELATED_CONSTANT;XUNIT_ENTRYPOINT_DISABLE_WARNINGS", 1)]
+    [InlineData(null, "UNRELATED_XUNIT_ENTRYPOINT_DISABLE_WARNINGS_CONSTANT", 1)]
+    public async Task should_respect_xunit_entrypoint_warning_constant_overrides(
         string? optOut,
         string initialConstants,
-        string expectedEnabled,
         int expectedConstantCount
     )
     {
@@ -196,26 +237,22 @@ public sealed partial class SdkIntegrationTests
         await using var project = await ConsumerProject.CreateAsync(
             fixture.PackageVersion,
             fixture.PackageSourceDirectory,
-            sdk: useSdkConsumption ? $"Headless.NET.Sdk.Test/{fixture.PackageVersion}" : "Microsoft.NET.Sdk",
-            includePackageReference: !useSdkConsumption,
+            sdk: "Microsoft.NET.Sdk",
+            includePackageReference: true,
             packageReferenceId: "Headless.NET.Sdk.Test",
             extraProperties: extraProperties,
-            extraPackageReferences: new Dictionary<string, string>(StringComparer.Ordinal)
-            {
-                ["xunit.v3.mtp-v2"] = TestRepository.ReadCentralPackageVersion("xunit.v3.mtp-v2"),
-            }
+            evaluationOnlyPackageReferences: ["xunit.v3.mtp-v2"]
         );
 
         var properties = await project.EvaluateHeadlessPropertiesAsync();
         var constants = properties["DefineConstants"]
             .Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
-        Assert.Equal(expectedEnabled, properties["EnableXunitEntryPointDisableWarnings"]);
-        Assert.Contains("UNRELATED_CONSTANT", constants);
         Assert.Equal(
             expectedConstantCount,
             constants.Count(constant => constant == "XUNIT_ENTRYPOINT_DISABLE_WARNINGS")
         );
+        Assert.Contains(initialConstants.Split(';')[0], constants);
     }
 
     [Fact]

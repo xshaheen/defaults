@@ -80,6 +80,7 @@ internal sealed class ConsumerProject : IAsyncDisposable
         bool useCentralPackageManagement = false,
         IReadOnlyDictionary<string, string>? extraProperties = null,
         IReadOnlyDictionary<string, string>? extraPackageReferences = null,
+        IReadOnlyCollection<string>? evaluationOnlyPackageReferences = null,
         IReadOnlyDictionary<string, string>? additionalFiles = null,
         IReadOnlyDictionary<string, string>? environmentOverrides = null,
         bool useHostFallbackFolder = true
@@ -123,7 +124,8 @@ internal sealed class ConsumerProject : IAsyncDisposable
                 packageReferenceId,
                 useCentralPackageManagement,
                 extraProperties,
-                extraPackageReferences
+                extraPackageReferences,
+                evaluationOnlyPackageReferences
             ),
             Encoding.UTF8,
             cancellationToken
@@ -305,7 +307,8 @@ public sealed class Class1;
         string packageReferenceId,
         bool useCentralPackageManagement,
         IReadOnlyDictionary<string, string>? extraProperties,
-        IReadOnlyDictionary<string, string>? extraPackageReferences
+        IReadOnlyDictionary<string, string>? extraPackageReferences,
+        IReadOnlyCollection<string>? evaluationOnlyPackageReferences
     )
     {
         var propertyLines = new List<string>();
@@ -380,13 +383,30 @@ public sealed class Class1;
                       </ItemGroup>
                     """;
 
+        var evaluationOnlyPackageReferenceBlock = evaluationOnlyPackageReferences is null
+            ? string.Empty
+            : $"""
+
+                  <Target Name="_HeadlessAddEvaluationOnlyPackageReferences">
+                    <ItemGroup>
+                {string.Join(
+                    Environment.NewLine,
+                    evaluationOnlyPackageReferences.Select(name => $"      <PackageReference Include=\"{name}\" />")
+                )}
+                    </ItemGroup>
+                  </Target>
+                """;
+        var evaluationOnlyPackageReferenceDependency = evaluationOnlyPackageReferences is null
+            ? string.Empty
+            : "_HeadlessAddEvaluationOnlyPackageReferences;";
+
         return $$"""
             <Project Sdk="{{sdk}}">
               <PropertyGroup>
                 <Nullable>enable</Nullable>{{extraPropertyBlock}}
-              </PropertyGroup>{{packageReferenceBlock}}
+              </PropertyGroup>{{packageReferenceBlock}}{{evaluationOnlyPackageReferenceBlock}}
 
-              <Target Name="WriteHeadlessProperties" DependsOnTargets="_HeadlessConfigureXunitEntryPointDisableWarnings">
+              <Target Name="WriteHeadlessProperties" DependsOnTargets="{{evaluationOnlyPackageReferenceDependency}}_HeadlessConfigureXunitEntryPointDisableWarnings">
                 <PropertyGroup>
                   <_HeadlessEvaluatedEditorConfigFiles>@(EditorConfigFiles, '|')</_HeadlessEvaluatedEditorConfigFiles>
                   <_HeadlessEvaluatedAdditionalFiles>@(AdditionalFiles->'%(Identity)', '|')</_HeadlessEvaluatedAdditionalFiles>

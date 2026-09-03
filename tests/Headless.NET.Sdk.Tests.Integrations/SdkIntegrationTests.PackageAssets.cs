@@ -367,10 +367,7 @@ public sealed partial class SdkIntegrationTests
         Assert.NotNull(package.GetEntry("LICENSE.txt"));
 
         var noticeEntry = Assert.Single(package.Entries, IsRootThirdPartyNoticeEntry);
-        using (var reader = new StreamReader(noticeEntry.Open()))
-        {
-            Assert.Equal(noticeContent, reader.ReadToEnd());
-        }
+        Assert.Equal(noticeContent, ReadPackageEntry(package, noticeEntry.FullName));
 
         var noticePath = Path.Combine(project.RootDirectory, noticeFileName);
         if (IsFileSystemCaseSensitive(noticePath))
@@ -415,12 +412,11 @@ public sealed partial class SdkIntegrationTests
         var noticeEntry = Assert.Single(package.Entries, IsRootThirdPartyNoticeEntry);
 
         Assert.Equal("THIRD-PARTY-NOTICES.TXT", noticeEntry.FullName);
-        using var reader = new StreamReader(noticeEntry.Open());
-        Assert.Equal("Preferred notices", reader.ReadToEnd());
+        Assert.Equal("Preferred notices", ReadPackageEntry(package, noticeEntry.FullName));
     }
 
     private static bool IsRootThirdPartyNoticeEntry(ZipArchiveEntry entry) =>
-        !entry.FullName.Contains("/", StringComparison.Ordinal)
+        string.Equals(entry.Name, entry.FullName, StringComparison.Ordinal)
         && entry.FullName.StartsWith("THIRD-PARTY-NOTICES.", StringComparison.OrdinalIgnoreCase)
         && (
             entry.FullName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase)

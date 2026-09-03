@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <GlobalPackageReference Include="CSharpier.MSBuild" Version="0.30.2" />
+    <GlobalPackageReference Include="CSharpier.MSBuild" Version="1.3.0" />
   </ItemGroup>
 
   <ItemGroup>

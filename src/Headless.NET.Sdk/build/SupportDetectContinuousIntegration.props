@@ -20,20 +20,14 @@
         or ('$(BUILD_ID)' != '' and '$(BUILD_URL)' != '')
         or ('$(BUILD_ID)' != '' and '$(PROJECT_ID)' != '')
         or '$(JB_SPACE_API_URL)' != '' "
-      >true</_HeadlessIsKnownCiEnvironment
-    >
+      >true</_HeadlessIsKnownCiEnvironment>
     <ContinuousIntegrationBuild Condition="'$(_HeadlessIsKnownCiEnvironment)' == 'true'"
-      >true</ContinuousIntegrationBuild
-    >
+      >true</ContinuousIntegrationBuild>
 
-    <_HeadlessPackageLockFile
-      Condition="'$(NuGetLockFilePath)' != ''"
-      >$([System.IO.Path]::GetFullPath('$(NuGetLockFilePath)', '$(MSBuildProjectDirectory)'))</_HeadlessPackageLockFile
-    >
-    <_HeadlessPackageLockFile
-      Condition="'$(NuGetLockFilePath)' == ''"
-      >$([System.IO.Path]::GetFullPath('packages.lock.json', '$(MSBuildProjectDirectory)'))</_HeadlessPackageLockFile
-    >
+    <_HeadlessPackageLockFile Condition="'$(NuGetLockFilePath)' != ''"
+      >$([System.IO.Path]::GetFullPath('$(NuGetLockFilePath)', '$(MSBuildProjectDirectory)'))</_HeadlessPackageLockFile>
+    <_HeadlessPackageLockFile Condition="'$(NuGetLockFilePath)' == ''"
+      >$([System.IO.Path]::GetFullPath('packages.lock.json', '$(MSBuildProjectDirectory)'))</_HeadlessPackageLockFile>
   </PropertyGroup>
 
   <!-- A repository opts into locked restore by committing a lock file; CI only enforces that choice. -->

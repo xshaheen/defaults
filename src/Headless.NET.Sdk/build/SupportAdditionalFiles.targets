@@ -20,25 +20,19 @@
 <Project>
   <PropertyGroup>
     <HeadlessCopyDefaultConfigFilesToSolutionDir Condition="'$(HeadlessCopyDefaultConfigFilesToSolutionDir)' == ''"
-      >false</HeadlessCopyDefaultConfigFilesToSolutionDir
-    >
+      >false</HeadlessCopyDefaultConfigFilesToSolutionDir>
     <HeadlessCopyEditorConfigToSolutionDir Condition="'$(HeadlessCopyEditorConfigToSolutionDir)' == ''"
-      >false</HeadlessCopyEditorConfigToSolutionDir
-    >
+      >false</HeadlessCopyEditorConfigToSolutionDir>
     <HeadlessCopyCSharpierIgnoreToSolutionDir Condition="'$(HeadlessCopyCSharpierIgnoreToSolutionDir)' == ''"
-      >$(HeadlessCopyDefaultConfigFilesToSolutionDir)</HeadlessCopyCSharpierIgnoreToSolutionDir
-    >
+      >$(HeadlessCopyDefaultConfigFilesToSolutionDir)</HeadlessCopyCSharpierIgnoreToSolutionDir>
     <HeadlessCopyGitIgnoreToSolutionDir Condition="'$(HeadlessCopyGitIgnoreToSolutionDir)' == ''"
-      >$(HeadlessCopyDefaultConfigFilesToSolutionDir)</HeadlessCopyGitIgnoreToSolutionDir
-    >
+      >$(HeadlessCopyDefaultConfigFilesToSolutionDir)</HeadlessCopyGitIgnoreToSolutionDir>
     <HeadlessCopyGitAttributesToSolutionDir Condition="'$(HeadlessCopyGitAttributesToSolutionDir)' == ''"
-      >$(HeadlessCopyDefaultConfigFilesToSolutionDir)</HeadlessCopyGitAttributesToSolutionDir
-    >
+      >$(HeadlessCopyDefaultConfigFilesToSolutionDir)</HeadlessCopyGitAttributesToSolutionDir>
 
     <!-- Force-overwrite an existing destination file. Never overwrite by default. -->
     <HeadlessOverwriteConfigFiles Condition="'$(HeadlessOverwriteConfigFiles)' == ''"
-      >false</HeadlessOverwriteConfigFiles
-    >
+      >false</HeadlessOverwriteConfigFiles>
   </PropertyGroup>
 
   <!--
@@ -55,7 +49,7 @@
           or '$(HeadlessCopyCSharpierIgnoreToSolutionDir)' == 'true'
           or '$(HeadlessCopyGitIgnoreToSolutionDir)' == 'true'
           or '$(HeadlessCopyGitAttributesToSolutionDir)' == 'true'"
-      >true</_HeadlessScaffoldAnyFlag>
+        >true</_HeadlessScaffoldAnyFlag>
 
       <!-- Per-file selection: a file is selected by its own flag, by the master flag, or (when
            no flag at all was set) by the no-selector default that scaffolds everything. -->
@@ -64,42 +58,39 @@
         Condition="'$(_HeadlessScaffoldAnyFlag)' != 'true'
           or '$(HeadlessCopyDefaultConfigFilesToSolutionDir)' == 'true'
           or '$(HeadlessCopyEditorConfigToSolutionDir)' == 'true'"
-      >true</_HeadlessScaffoldEditorConfig>
+        >true</_HeadlessScaffoldEditorConfig>
 
       <_HeadlessScaffoldCSharpierIgnore>false</_HeadlessScaffoldCSharpierIgnore>
       <_HeadlessScaffoldCSharpierIgnore
         Condition="'$(_HeadlessScaffoldAnyFlag)' != 'true'
           or '$(HeadlessCopyCSharpierIgnoreToSolutionDir)' == 'true'"
-      >true</_HeadlessScaffoldCSharpierIgnore>
+        >true</_HeadlessScaffoldCSharpierIgnore>
 
       <_HeadlessScaffoldGitIgnore>false</_HeadlessScaffoldGitIgnore>
       <_HeadlessScaffoldGitIgnore
         Condition="'$(_HeadlessScaffoldAnyFlag)' != 'true'
           or '$(HeadlessCopyGitIgnoreToSolutionDir)' == 'true'"
-      >true</_HeadlessScaffoldGitIgnore>
+        >true</_HeadlessScaffoldGitIgnore>
 
       <_HeadlessScaffoldGitAttributes>false</_HeadlessScaffoldGitAttributes>
       <_HeadlessScaffoldGitAttributes
         Condition="'$(_HeadlessScaffoldAnyFlag)' != 'true'
           or '$(HeadlessCopyGitAttributesToSolutionDir)' == 'true'"
-      >true</_HeadlessScaffoldGitAttributes>
+        >true</_HeadlessScaffoldGitAttributes>
 
       <!-- Destination directory: prefer an explicit override, then $(SolutionDir), then the
            project directory (so scaffolding a single csproj works). Always trailing-slashed. -->
       <_HeadlessScaffoldDir Condition="'$(HeadlessConfigFilesDir)' != ''"
-        >$(HeadlessConfigFilesDir)</_HeadlessScaffoldDir
-      >
+        >$(HeadlessConfigFilesDir)</_HeadlessScaffoldDir>
       <_HeadlessScaffoldDir
         Condition="'$(_HeadlessScaffoldDir)' == ''
           and '$(SolutionDir)' != ''
           and '$(SolutionDir)' != '*Undefined*'"
-      >$(SolutionDir)</_HeadlessScaffoldDir>
+        >$(SolutionDir)</_HeadlessScaffoldDir>
       <_HeadlessScaffoldDir Condition="'$(_HeadlessScaffoldDir)' == ''"
-        >$(MSBuildProjectDirectory)/</_HeadlessScaffoldDir
-      >
+        >$(MSBuildProjectDirectory)/</_HeadlessScaffoldDir>
       <_HeadlessScaffoldDir Condition="!HasTrailingSlash('$(_HeadlessScaffoldDir)')"
-        >$(_HeadlessScaffoldDir)/</_HeadlessScaffoldDir
-      >
+        >$(_HeadlessScaffoldDir)/</_HeadlessScaffoldDir>
 
       <!-- Resolved destination paths. -->
       <_HeadlessEditorConfigDest>$(_HeadlessScaffoldDir).editorconfig</_HeadlessEditorConfigDest>
@@ -109,20 +100,16 @@
 
       <_HeadlessEditorConfigExistedBeforeScaffold>false</_HeadlessEditorConfigExistedBeforeScaffold>
       <_HeadlessEditorConfigExistedBeforeScaffold Condition="Exists('$(_HeadlessEditorConfigDest)')"
-        >true</_HeadlessEditorConfigExistedBeforeScaffold
-      >
+        >true</_HeadlessEditorConfigExistedBeforeScaffold>
       <_HeadlessCSharpierIgnoreExistedBeforeScaffold>false</_HeadlessCSharpierIgnoreExistedBeforeScaffold>
       <_HeadlessCSharpierIgnoreExistedBeforeScaffold Condition="Exists('$(_HeadlessCSharpierIgnoreDest)')"
-        >true</_HeadlessCSharpierIgnoreExistedBeforeScaffold
-      >
+        >true</_HeadlessCSharpierIgnoreExistedBeforeScaffold>
       <_HeadlessGitIgnoreExistedBeforeScaffold>false</_HeadlessGitIgnoreExistedBeforeScaffold>
       <_HeadlessGitIgnoreExistedBeforeScaffold Condition="Exists('$(_HeadlessGitIgnoreDest)')"
-        >true</_HeadlessGitIgnoreExistedBeforeScaffold
-      >
+        >true</_HeadlessGitIgnoreExistedBeforeScaffold>
       <_HeadlessGitAttributesExistedBeforeScaffold>false</_HeadlessGitAttributesExistedBeforeScaffold>
       <_HeadlessGitAttributesExistedBeforeScaffold Condition="Exists('$(_HeadlessGitAttributesDest)')"
-        >true</_HeadlessGitAttributesExistedBeforeScaffold
-      >
+        >true</_HeadlessGitAttributesExistedBeforeScaffold>
     </PropertyGroup>
 
     <!--

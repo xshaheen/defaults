@@ -14,9 +14,7 @@
     the required analyzers.
   -->
   <ItemGroup Condition="'$(IsBuildTaskProject)' != 'true'">
-    <PackageReference
-      Remove="Meziantou.Analyzer;Microsoft.CodeAnalysis.BannedApiAnalyzers;AsyncFixer;Asyncify;Microsoft.VisualStudio.Threading.Analyzers;SmartAnalyzers.MultithreadingAnalyzer;Roslynator.Analyzers;Roslynator.Formatting.Analyzers;ReflectionAnalyzers;ErrorProne.NET.CoreAnalyzers"
-    />
+    <PackageReference Remove="Meziantou.Analyzer;Microsoft.CodeAnalysis.BannedApiAnalyzers;AsyncFixer;Asyncify;Microsoft.VisualStudio.Threading.Analyzers;SmartAnalyzers.MultithreadingAnalyzer;Roslynator.Analyzers;Roslynator.Formatting.Analyzers;ReflectionAnalyzers;ErrorProne.NET.CoreAnalyzers" />
     <PackageReference
       Include="Meziantou.Analyzer"
       Condition="'$(PackageId)' != 'Meziantou.Analyzer'"
@@ -105,9 +103,7 @@
     <EditorConfigFiles Remove="$(MSBuildThisFileDirectory)../configurations/Headless.NET.Sdk.Analyzers.editorconfig" />
     <EditorConfigFiles Include="$(MSBuildThisFileDirectory)../configurations/Headless.NET.Sdk.Analyzers.editorconfig" />
 
-    <EditorConfigFiles
-      Remove="$(MSBuildThisFileDirectory)../configurations/Headless.NET.Sdk.EnforceConfigureAwait.editorconfig"
-    />
+    <EditorConfigFiles Remove="$(MSBuildThisFileDirectory)../configurations/Headless.NET.Sdk.EnforceConfigureAwait.editorconfig" />
     <EditorConfigFiles
       Include="$(MSBuildThisFileDirectory)../configurations/Headless.NET.Sdk.EnforceConfigureAwait.editorconfig"
       Condition="'$(HeadlessEnforceConfigureAwait)' == 'true'"

@@ -3,8 +3,6 @@
     <!-- Off by default: these process-wide STJ runtime switches can break third-party serializers such as NATS.Net. -->
     <HeadlessEnableStrictSystemTextJsonRuntimeDefaults
       Condition="'$(HeadlessEnableStrictSystemTextJsonRuntimeDefaults)' == ''"
-      >false</HeadlessEnableStrictSystemTextJsonRuntimeDefaults
-    >
+      >false</HeadlessEnableStrictSystemTextJsonRuntimeDefaults>
   </PropertyGroup>
-
 </Project>

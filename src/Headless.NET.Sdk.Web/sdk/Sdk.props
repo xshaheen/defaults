@@ -3,14 +3,10 @@
     <HeadlessSdkName Condition="'$(HeadlessSdkName)' == ''">Headless.NET.Sdk.Web</HeadlessSdkName>
     <HeadlessSdkProjectType Condition="'$(HeadlessSdkProjectType)' == ''">Web</HeadlessSdkProjectType>
     <_HeadlessMustImportMicrosoftNETSdk Condition="'$(UsingMicrosoftNETSdk)' != 'true'"
-      >true</_HeadlessMustImportMicrosoftNETSdk
-    >
+      >true</_HeadlessMustImportMicrosoftNETSdk>
     <CustomBeforeDirectoryBuildProps Condition="'$(_HeadlessMustImportMicrosoftNETSdk)' == 'true'"
-      >$(CustomBeforeDirectoryBuildProps);$(MSBuildThisFileDirectory)../build/Headless.NET.Sdk.Web.props</CustomBeforeDirectoryBuildProps
-    >
-    <BeforeMicrosoftNETSdkTargets
-      >$(BeforeMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)../build/Headless.NET.Sdk.Web.targets</BeforeMicrosoftNETSdkTargets
-    >
+      >$(CustomBeforeDirectoryBuildProps);$(MSBuildThisFileDirectory)../build/Headless.NET.Sdk.Web.props</CustomBeforeDirectoryBuildProps>
+    <BeforeMicrosoftNETSdkTargets>$(BeforeMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)../build/Headless.NET.Sdk.Web.targets</BeforeMicrosoftNETSdkTargets>
   </PropertyGroup>
 
   <Import

@@ -7,8 +7,7 @@
       conflict.
     -->
     <HeadlessEmitClsCompliantAttribute Condition="'$(HeadlessEmitClsCompliantAttribute)' == ''"
-      >true</HeadlessEmitClsCompliantAttribute
-    >
+      >true</HeadlessEmitClsCompliantAttribute>
   </PropertyGroup>
 
   <ItemGroup>

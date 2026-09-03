@@ -52,8 +52,7 @@
 
   <PropertyGroup Label="Conventional Test Friend Assemblies">
     <HeadlessEmitInternalsVisibleToAttributes Condition=" '$(HeadlessEmitInternalsVisibleToAttributes)' == '' "
-      >true</HeadlessEmitInternalsVisibleToAttributes
-    >
+      >true</HeadlessEmitInternalsVisibleToAttributes>
   </PropertyGroup>
 
   <ItemGroup
@@ -71,8 +70,7 @@
 
   <PropertyGroup Condition=" '$(IsTestProject)' != 'true' and '$(IsTestHarnessProject)' != 'true' ">
     <_HeadlessSdkDefaultIsPackable Condition=" '$(_HeadlessSdkDefaultIsPackable)' == '' "
-      >true</_HeadlessSdkDefaultIsPackable
-    >
+      >true</_HeadlessSdkDefaultIsPackable>
     <IsPackable Condition=" '$(IsPackable)' == '' ">$(_HeadlessSdkDefaultIsPackable)</IsPackable>
     <IsTestProject Condition=" '$(IsTestProject)' == '' ">false</IsTestProject>
   </PropertyGroup>
@@ -85,16 +83,13 @@
     <IsTestProject Condition=" '$(IsTestProject)' == '' ">false</IsTestProject>
     <IsPackable
       Condition=" '$(IsPackable)' == '' and ('$(IsTestProject)' == 'true' or '$(IsTestHarnessProject)' == 'true') "
-      >false</IsPackable
-    >
+      >false</IsPackable>
     <HeadlessSuppressNonPackablePackWarning Condition=" '$(HeadlessSuppressNonPackablePackWarning)' == '' "
-      >true</HeadlessSuppressNonPackablePackWarning
-    >
+      >true</HeadlessSuppressNonPackablePackWarning>
     <WarnOnPackingNonPackableProject
       Condition=" '$(IsPackable)' == 'false'
         and '$(HeadlessSuppressNonPackablePackWarning)' == 'true' "
-      >false</WarnOnPackingNonPackableProject
-    >
+      >false</WarnOnPackingNonPackableProject>
   </PropertyGroup>
 
   <PropertyGroup Label="Documentation Warnings">
@@ -145,7 +140,6 @@
         and '$(IsTestHarnessProject)' != 'true'
         and '$(UsingMicrosoftNETSdkWeb)' != 'true'
         and '$(IsAspireHost)' != 'true' "
-      >true</PackAsTool
-    >
+      >true</PackAsTool>
   </PropertyGroup>
 </Project>

@@ -3,14 +3,10 @@
     <HeadlessSdkName Condition="'$(HeadlessSdkName)' == ''">Headless.NET.Sdk.Razor</HeadlessSdkName>
     <HeadlessSdkProjectType Condition="'$(HeadlessSdkProjectType)' == ''">Razor</HeadlessSdkProjectType>
     <_HeadlessMustImportMicrosoftNETSdk Condition="'$(UsingMicrosoftNETSdk)' != 'true'"
-      >true</_HeadlessMustImportMicrosoftNETSdk
-    >
+      >true</_HeadlessMustImportMicrosoftNETSdk>
     <CustomBeforeDirectoryBuildProps Condition="'$(_HeadlessMustImportMicrosoftNETSdk)' == 'true'"
-      >$(CustomBeforeDirectoryBuildProps);$(MSBuildThisFileDirectory)../build/Headless.NET.Sdk.Razor.props</CustomBeforeDirectoryBuildProps
-    >
-    <BeforeMicrosoftNETSdkTargets
-      >$(BeforeMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)../build/Headless.NET.Sdk.Razor.targets</BeforeMicrosoftNETSdkTargets
-    >
+      >$(CustomBeforeDirectoryBuildProps);$(MSBuildThisFileDirectory)../build/Headless.NET.Sdk.Razor.props</CustomBeforeDirectoryBuildProps>
+    <BeforeMicrosoftNETSdkTargets>$(BeforeMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)../build/Headless.NET.Sdk.Razor.targets</BeforeMicrosoftNETSdkTargets>
   </PropertyGroup>
 
   <Import

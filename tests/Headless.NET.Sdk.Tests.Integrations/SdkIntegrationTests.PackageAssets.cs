@@ -337,17 +337,22 @@ public sealed partial class SdkIntegrationTests
         }
     }
 
-    [Fact]
-    public async Task should_include_readme_license_and_third_party_notices_when_packed()
+    [Theory]
+    [InlineData("THIRD-PARTY-NOTICES.TXT")]
+    [InlineData("THIRD-PARTY-NOTICES.txt")]
+    [InlineData("THIRD-PARTY-NOTICES.MD")]
+    [InlineData("THIRD-PARTY-NOTICES.md")]
+    public async Task should_include_readme_license_and_supported_third_party_notice_when_packed(string noticeFileName)
     {
+        var noticeContent = $"Notices from {noticeFileName}";
         await using var project = await ConsumerProject.CreateAsync(
             fixture.PackageVersion,
             fixture.PackageSourceDirectory,
-            additionalFiles: new Dictionary<string, string>
+            additionalFiles: new Dictionary<string, string>(StringComparer.Ordinal)
             {
                 ["ReadMe.md"] = "# Consumer readme",
                 ["LICENSE.txt"] = "MIT",
-                ["THIRD-PARTY-NOTICES.TXT"] = "Notices",
+                [noticeFileName] = noticeContent,
             }
         );
 
@@ -360,12 +365,79 @@ public sealed partial class SdkIntegrationTests
         using var package = ZipFile.OpenRead(Path.Combine(project.PackagesDirectory, "ConsumerProject.1.2.3.nupkg"));
         Assert.NotNull(package.GetEntry("README.md"));
         Assert.NotNull(package.GetEntry("LICENSE.txt"));
-        Assert.NotNull(package.GetEntry("THIRD-PARTY-NOTICES.TXT"));
+
+        var noticeEntry = Assert.Single(package.Entries, IsRootThirdPartyNoticeEntry);
+        using (var reader = new StreamReader(noticeEntry.Open()))
+        {
+            Assert.Equal(noticeContent, reader.ReadToEnd());
+        }
+
+        var noticePath = Path.Combine(project.RootDirectory, noticeFileName);
+        if (IsFileSystemCaseSensitive(noticePath))
+        {
+            Assert.Equal(noticeFileName, noticeEntry.FullName);
+        }
 
         var nuspec = ReadPackageEntry(package, "ConsumerProject.nuspec");
         Assert.Contains("<license type=\"file\">LICENSE.txt</license>", nuspec, StringComparison.Ordinal);
         Assert.DoesNotContain("<license type=\"expression\">MIT</license>", nuspec, StringComparison.Ordinal);
         Assert.Contains("<readme>README.md</readme>", nuspec, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task should_pack_first_third_party_notice_variant_when_multiple_exist()
+    {
+        await using var project = await ConsumerProject.CreateAsync(
+            fixture.PackageVersion,
+            fixture.PackageSourceDirectory,
+            additionalFiles: new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["THIRD-PARTY-NOTICES.TXT"] = "Preferred notices",
+                ["THIRD-PARTY-NOTICES.txt"] = "Fallback notices",
+            }
+        );
+
+        var distinctNoticeFiles = Directory
+            .EnumerateFiles(project.RootDirectory, "THIRD-PARTY-NOTICES.*", SearchOption.TopDirectoryOnly)
+            .Count();
+        Assert.SkipUnless(
+            distinctNoticeFiles == 2,
+            "The filesystem does not distinguish THIRD-PARTY-NOTICES.TXT from THIRD-PARTY-NOTICES.txt."
+        );
+
+        var result = await project.RunDotNetAsync(
+            $"pack {Quote(project.ProjectFilePath)} -c Release -o {Quote(project.PackagesDirectory)} -p:PackageVersion=1.2.3 -p:RestoreConfigFile={Quote(project.NuGetConfigPath)}"
+        );
+
+        Assert.True(result.ExitCode == 0, result.Output);
+
+        using var package = ZipFile.OpenRead(Path.Combine(project.PackagesDirectory, "ConsumerProject.1.2.3.nupkg"));
+        var noticeEntry = Assert.Single(package.Entries, IsRootThirdPartyNoticeEntry);
+
+        Assert.Equal("THIRD-PARTY-NOTICES.TXT", noticeEntry.FullName);
+        using var reader = new StreamReader(noticeEntry.Open());
+        Assert.Equal("Preferred notices", reader.ReadToEnd());
+    }
+
+    private static bool IsRootThirdPartyNoticeEntry(ZipArchiveEntry entry) =>
+        !entry.FullName.Contains("/", StringComparison.Ordinal)
+        && entry.FullName.StartsWith("THIRD-PARTY-NOTICES.", StringComparison.OrdinalIgnoreCase)
+        && (
+            entry.FullName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase)
+            || entry.FullName.EndsWith(".md", StringComparison.OrdinalIgnoreCase)
+        );
+
+    private static bool IsFileSystemCaseSensitive(string filePath)
+    {
+        var fileName = Path.GetFileName(filePath);
+        var alternateFileName = fileName.ToLowerInvariant();
+
+        if (string.Equals(fileName, alternateFileName, StringComparison.Ordinal))
+        {
+            alternateFileName = fileName.ToUpperInvariant();
+        }
+
+        return !File.Exists(Path.Combine(Path.GetDirectoryName(filePath)!, alternateFileName));
     }
 
     [Fact]

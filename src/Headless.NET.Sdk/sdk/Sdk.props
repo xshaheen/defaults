@@ -11,14 +11,10 @@
     <HeadlessSdkName Condition="'$(HeadlessSdkName)' == ''">Headless.NET.Sdk</HeadlessSdkName>
     <HeadlessSdkProjectType Condition="'$(HeadlessSdkProjectType)' == ''">Default</HeadlessSdkProjectType>
     <_HeadlessMustImportMicrosoftNETSdk Condition="'$(UsingMicrosoftNETSdk)' != 'true'"
-      >true</_HeadlessMustImportMicrosoftNETSdk
-    >
+      >true</_HeadlessMustImportMicrosoftNETSdk>
     <CustomBeforeDirectoryBuildProps Condition="'$(_HeadlessMustImportMicrosoftNETSdk)' == 'true'"
-      >$(CustomBeforeDirectoryBuildProps);$(MSBuildThisFileDirectory)../build/Headless.NET.Sdk.props</CustomBeforeDirectoryBuildProps
-    >
-    <BeforeMicrosoftNETSdkTargets
-      >$(BeforeMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)../build/Headless.NET.Sdk.targets</BeforeMicrosoftNETSdkTargets
-    >
+      >$(CustomBeforeDirectoryBuildProps);$(MSBuildThisFileDirectory)../build/Headless.NET.Sdk.props</CustomBeforeDirectoryBuildProps>
+    <BeforeMicrosoftNETSdkTargets>$(BeforeMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)../build/Headless.NET.Sdk.targets</BeforeMicrosoftNETSdkTargets>
   </PropertyGroup>
 
   <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" Condition="'$(_HeadlessMustImportMicrosoftNETSdk)' == 'true'" />

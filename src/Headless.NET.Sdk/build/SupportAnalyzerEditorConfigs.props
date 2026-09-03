@@ -1,8 +1,6 @@
 <Project>
   <ItemGroup>
-    <EditorConfigFiles
-      Include="$(MSBuildThisFileDirectory)..\configurations\Headless.NET.Sdk.Analyzers.editorconfig"
-    />
+    <EditorConfigFiles Include="$(MSBuildThisFileDirectory)..\configurations\Headless.NET.Sdk.Analyzers.editorconfig" />
     <EditorConfigFiles
       Include="$(MSBuildThisFileDirectory)..\configurations\Headless.NET.Sdk.EnforceConfigureAwait.editorconfig"
       Condition="'$(HeadlessEnforceConfigureAwait)' == 'true'"

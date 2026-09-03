@@ -19,48 +19,38 @@
     <!-- Readme -->
     <_PackageReadmeFilePath
       Condition="'$(_PackageReadmeFilePath)' == '' and Exists('$(MSBuildProjectDirectory)/README.md')"
-      >$(MSBuildProjectDirectory)/README.md</_PackageReadmeFilePath
-    >
+      >$(MSBuildProjectDirectory)/README.md</_PackageReadmeFilePath>
     <_PackageReadmeFilePath
       Condition="'$(_PackageReadmeFilePath)' == '' and Exists('$(MSBuildProjectDirectory)/readme.md')"
-      >$(MSBuildProjectDirectory)/readme.md</_PackageReadmeFilePath
-    >
+      >$(MSBuildProjectDirectory)/readme.md</_PackageReadmeFilePath>
     <_PackageReadmeFilePath
       Condition="'$(_PackageReadmeFilePath)' == '' and Exists('$(MSBuildProjectDirectory)/Readme.md')"
-      >$(MSBuildProjectDirectory)/Readme.md</_PackageReadmeFilePath
-    >
+      >$(MSBuildProjectDirectory)/Readme.md</_PackageReadmeFilePath>
     <_PackageReadmeFilePath
       Condition="'$(_PackageReadmeFilePath)' == '' and Exists('$(MSBuildProjectDirectory)/ReadMe.md')"
-      >$(MSBuildProjectDirectory)/ReadMe.md</_PackageReadmeFilePath
-    >
+      >$(MSBuildProjectDirectory)/ReadMe.md</_PackageReadmeFilePath>
     <_PackageReadmeFilePath
       Condition="'$(_PackageReadmeFilePath)' == '' and '$(SearchReadmeFileAbove)' == 'true' and Exists($([MSBuild]::GetPathOfFileAbove('README.md', '$(MSBuildProjectDirectory)')))"
-      >$([MSBuild]::GetPathOfFileAbove('README.md', '$(MSBuildProjectDirectory)'))</_PackageReadmeFilePath
-    >
+      >$([MSBuild]::GetPathOfFileAbove('README.md', '$(MSBuildProjectDirectory)'))</_PackageReadmeFilePath>
     <_PackageReadmeFilePath
       Condition="'$(_PackageReadmeFilePath)' == '' and '$(SearchReadmeFileAbove)' == 'true' and Exists($([MSBuild]::GetPathOfFileAbove('readme.md', '$(MSBuildProjectDirectory)')))"
-      >$([MSBuild]::GetPathOfFileAbove('readme.md', '$(MSBuildProjectDirectory)'))</_PackageReadmeFilePath
-    >
+      >$([MSBuild]::GetPathOfFileAbove('readme.md', '$(MSBuildProjectDirectory)'))</_PackageReadmeFilePath>
     <_PackageReadmeFilePath
       Condition="'$(_PackageReadmeFilePath)' == '' and '$(SearchReadmeFileAbove)' == 'true' and Exists($([MSBuild]::GetPathOfFileAbove('Readme.md', '$(MSBuildProjectDirectory)')))"
-      >$([MSBuild]::GetPathOfFileAbove('Readme.md', '$(MSBuildProjectDirectory)'))</_PackageReadmeFilePath
-    >
+      >$([MSBuild]::GetPathOfFileAbove('Readme.md', '$(MSBuildProjectDirectory)'))</_PackageReadmeFilePath>
     <_PackageReadmeFilePath
       Condition="'$(_PackageReadmeFilePath)' == '' and '$(SearchReadmeFileAbove)' == 'true' and Exists($([MSBuild]::GetPathOfFileAbove('ReadMe.md', '$(MSBuildProjectDirectory)')))"
-      >$([MSBuild]::GetPathOfFileAbove('ReadMe.md', '$(MSBuildProjectDirectory)'))</_PackageReadmeFilePath
-    >
+      >$([MSBuild]::GetPathOfFileAbove('ReadMe.md', '$(MSBuildProjectDirectory)'))</_PackageReadmeFilePath>
     <PackageReadmeFile
       Condition="'$(DisableReadme)' != 'true' and '$(PackageReadmeFile)' == '' and '$(_PackageReadmeFilePath)' != ''"
-      >README.md</PackageReadmeFile
-    >
+      >README.md</PackageReadmeFile>
 
     <!-- Logo -->
     <PackageIcon
       Condition="'$(DisablePackageLogo)' != 'true'
         and '$(PackageIcon)' == ''
         and (Exists('$(ProjectDir)logo.png') or Exists('$(SolutionDir)logo.png'))"
-      >logo.png</PackageIcon
-    >
+      >logo.png</PackageIcon>
   </PropertyGroup>
 
   <!--
@@ -95,14 +85,11 @@
   >
     <HeadlessSymbolFormat
       Condition=" '$(HeadlessSymbolFormat)' == '' and '$(UsingMicrosoftNETSdkBlazorWebAssembly)' == 'true' "
-      >none</HeadlessSymbolFormat
-    >
+      >none</HeadlessSymbolFormat>
     <HeadlessSymbolFormat Condition=" '$(HeadlessSymbolFormat)' == '' ">embedded</HeadlessSymbolFormat>
   </PropertyGroup>
 
-  <PropertyGroup
-    Condition=" '$(IsTestProject)' != 'true' and '$(IsTestHarnessProject)' != 'true' and '$(HeadlessSymbolFormat)' == 'embedded' "
-  >
+  <PropertyGroup Condition=" '$(IsTestProject)' != 'true' and '$(IsTestHarnessProject)' != 'true' and '$(HeadlessSymbolFormat)' == 'embedded' ">
     <DebugType Condition=" '$(DebugType)' == '' or '$(DebugType)' == 'portable' ">embedded</DebugType>
     <IncludeSymbols Condition=" '$(IncludeSymbols)' == '' ">false</IncludeSymbols>
     <EmbedUntrackedSources Condition=" '$(EmbedUntrackedSources)' == '' ">true</EmbedUntrackedSources>
@@ -117,17 +104,13 @@
     <_DebugSymbolsProduced Condition=" '$(DebugType)' == 'embedded' ">false</_DebugSymbolsProduced>
   </PropertyGroup>
 
-  <PropertyGroup
-    Condition=" '$(IsTestProject)' != 'true' and '$(IsTestHarnessProject)' != 'true' and '$(HeadlessSymbolFormat)' == 'snupkg' "
-  >
+  <PropertyGroup Condition=" '$(IsTestProject)' != 'true' and '$(IsTestHarnessProject)' != 'true' and '$(HeadlessSymbolFormat)' == 'snupkg' ">
     <IncludeSymbols Condition=" '$(IncludeSymbols)' == '' ">true</IncludeSymbols>
     <SymbolPackageFormat Condition=" '$(SymbolPackageFormat)' == '' ">snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources Condition=" '$(EmbedUntrackedSources)' == '' ">true</EmbedUntrackedSources>
   </PropertyGroup>
 
-  <PropertyGroup
-    Condition=" '$(IsTestProject)' != 'true' and '$(IsTestHarnessProject)' != 'true' and '$(HeadlessSymbolFormat)' == 'none' "
-  >
+  <PropertyGroup Condition=" '$(IsTestProject)' != 'true' and '$(IsTestHarnessProject)' != 'true' and '$(HeadlessSymbolFormat)' == 'none' ">
     <IncludeSymbols Condition=" '$(IncludeSymbols)' == '' ">false</IncludeSymbols>
   </PropertyGroup>
 
@@ -171,11 +154,9 @@
   >
     <PropertyGroup>
       <PackageLicenseFile Condition=" '@(_SolutionLicense)' != '' "
-        >@(_SolutionLicense->'%(Filename)%(Extension)')</PackageLicenseFile
-      >
+        >@(_SolutionLicense->'%(Filename)%(Extension)')</PackageLicenseFile>
       <PackageLicenseFile Condition=" '$(PackageLicenseFile)' == '' and '@(_LicensePath)' != '' "
-        >@(_LicensePath->'%(Filename)%(Extension)')</PackageLicenseFile
-      >
+        >@(_LicensePath->'%(Filename)%(Extension)')</PackageLicenseFile>
     </PropertyGroup>
   </Target>
 

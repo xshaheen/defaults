@@ -3,14 +3,10 @@
     <HeadlessSdkName Condition="'$(HeadlessSdkName)' == ''">Headless.NET.Sdk.BlazorWebAssembly</HeadlessSdkName>
     <HeadlessSdkProjectType Condition="'$(HeadlessSdkProjectType)' == ''">BlazorWebAssembly</HeadlessSdkProjectType>
     <_HeadlessMustImportMicrosoftNETSdk Condition="'$(UsingMicrosoftNETSdk)' != 'true'"
-      >true</_HeadlessMustImportMicrosoftNETSdk
-    >
+      >true</_HeadlessMustImportMicrosoftNETSdk>
     <CustomBeforeDirectoryBuildProps Condition="'$(_HeadlessMustImportMicrosoftNETSdk)' == 'true'"
-      >$(CustomBeforeDirectoryBuildProps);$(MSBuildThisFileDirectory)../build/Headless.NET.Sdk.BlazorWebAssembly.props</CustomBeforeDirectoryBuildProps
-    >
-    <BeforeMicrosoftNETSdkTargets
-      >$(BeforeMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)../build/Headless.NET.Sdk.BlazorWebAssembly.targets</BeforeMicrosoftNETSdkTargets
-    >
+      >$(CustomBeforeDirectoryBuildProps);$(MSBuildThisFileDirectory)../build/Headless.NET.Sdk.BlazorWebAssembly.props</CustomBeforeDirectoryBuildProps>
+    <BeforeMicrosoftNETSdkTargets>$(BeforeMicrosoftNETSdkTargets);$(MSBuildThisFileDirectory)../build/Headless.NET.Sdk.BlazorWebAssembly.targets</BeforeMicrosoftNETSdkTargets>
   </PropertyGroup>
 
   <Import

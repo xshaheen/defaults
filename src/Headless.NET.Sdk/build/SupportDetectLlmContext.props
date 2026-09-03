@@ -38,8 +38,7 @@
           or '$(KIMI_CLI)' == '1' or '$(KIMI_CLI)' == 'true' or '$(KIMI_CLI)' == 'yes' or '$(KIMI_CLI)' == 'on'
           or '$(AGENT_CLI)' == '1' or '$(AGENT_CLI)' == 'true' or '$(AGENT_CLI)' == 'yes' or '$(AGENT_CLI)' == 'on'
           or '$(OR_APP_NAME)' == 'Aider' or '$(OR_APP_NAME)' == 'plandex' or '$(OR_APP_NAME)' == 'OpenHands' ) "
-      >true</HeadlessIsLlmContext
-    >
+      >true</HeadlessIsLlmContext>
     <HeadlessIsLlmContext Condition=" '$(HeadlessIsLlmContext)' == '' ">false</HeadlessIsLlmContext>
   </PropertyGroup>
 </Project>

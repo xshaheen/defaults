@@ -6,9 +6,7 @@
     <NuGetAuditLevel>low</NuGetAuditLevel>
   </PropertyGroup>
 
-  <PropertyGroup
-    Condition=" '$(_HeadlessIsKnownCiEnvironment)' == 'true' or '$(ContinuousIntegrationBuild)' == 'true' "
-  >
+  <PropertyGroup Condition=" '$(_HeadlessIsKnownCiEnvironment)' == 'true' or '$(ContinuousIntegrationBuild)' == 'true' ">
     <!--
       NU1901 - Found a package with a vulnerability with level 'unknown' in the project.
       NU1902 - Found a package with a vulnerability with level 'low' in the project.

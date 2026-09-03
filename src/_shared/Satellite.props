@@ -21,7 +21,8 @@
     <LangVersion>latest</LangVersion>
     <IsPackable>true</IsPackable>
     <PackageType>MSBuildSdk</PackageType>
-    <NuspecFile Condition="'$(NuspecFile)' == ''">$(MSBuildThisFileDirectory)Headless.NET.Sdk.Satellite.nuspec</NuspecFile>
+    <NuspecFile Condition="'$(NuspecFile)' == ''"
+      >$(MSBuildThisFileDirectory)Headless.NET.Sdk.Satellite.nuspec</NuspecFile>
     <IsBuildTaskProject>true</IsBuildTaskProject>
     <EnableDefaultNoneItems>false</EnableDefaultNoneItems>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -36,5 +37,4 @@
       IncludeAssets="all"
     />
   </ItemGroup>
-
 </Project>

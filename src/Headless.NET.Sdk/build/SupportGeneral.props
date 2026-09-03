@@ -5,7 +5,8 @@
     <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
     <Platform Condition="'$(Platform)' == ''">AnyCPU</Platform>
     <PlatformName Condition="'$(PlatformName)' == ''">$(Platform)</PlatformName>
-    <HeadlessEnforceConfigureAwait Condition="'$(HeadlessEnforceConfigureAwait)' == ''">false</HeadlessEnforceConfigureAwait>
+    <HeadlessEnforceConfigureAwait Condition="'$(HeadlessEnforceConfigureAwait)' == ''"
+      >false</HeadlessEnforceConfigureAwait>
   </PropertyGroup>
 
   <PropertyGroup Label="Project Categorisation">
@@ -41,12 +42,10 @@
     <Features Condition="'$(Features)' == ''">strict</Features>
     <ReportAnalyzer Condition="'$(ReportAnalyzer)' == ''">true</ReportAnalyzer>
     <SuppressNETCoreSdkPreviewMessage Condition="'$(SuppressNETCoreSdkPreviewMessage)' == ''"
-      >false</SuppressNETCoreSdkPreviewMessage
-    >
+      >false</SuppressNETCoreSdkPreviewMessage>
     <CheckEolTargetFramework Condition="'$(CheckEolTargetFramework)' == ''">true</CheckEolTargetFramework>
     <SuppressTfmSupportBuildWarnings Condition="'$(SuppressTfmSupportBuildWarnings)' == ''"
-      >false</SuppressTfmSupportBuildWarnings
-    >
+      >false</SuppressTfmSupportBuildWarnings>
 
     <!--
       Mandatory quality baseline: unconditional here AND re-asserted after the consumer project
@@ -58,31 +57,26 @@
     <AnalysisMode>All</AnalysisMode>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <CodeAnalysisTreatWarningsAsErrors Condition="'$(CodeAnalysisTreatWarningsAsErrors)' == ''"
-      >false</CodeAnalysisTreatWarningsAsErrors
-    >
+      >false</CodeAnalysisTreatWarningsAsErrors>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
     <_SkipUpgradeNetAnalyzersNuGetWarning>true</_SkipUpgradeNetAnalyzersNuGetWarning>
 
     <AccelerateBuildsInVisualStudio Condition="'$(AccelerateBuildsInVisualStudio)' == ''"
-      >true</AccelerateBuildsInVisualStudio
-    >
+      >true</AccelerateBuildsInVisualStudio>
 
     <!-- Determinism is part of the mandatory quality baseline. -->
     <Deterministic>true</Deterministic>
 
     <!-- Faster + more correct restore. -->
     <RestoreUseStaticGraphEvaluation Condition="'$(RestoreUseStaticGraphEvaluation)' == ''"
-      >true</RestoreUseStaticGraphEvaluation
-    >
+      >true</RestoreUseStaticGraphEvaluation>
     <RestoreSerializeGlobalProperties Condition="'$(RestoreSerializeGlobalProperties)' == ''"
-      >true</RestoreSerializeGlobalProperties
-    >
+      >true</RestoreSerializeGlobalProperties>
 
     <!-- Run the Microsoft package-validation checks for packable projects by default. -->
     <EnablePackageValidation Condition="'$(EnablePackageValidation)' == ''">true</EnablePackageValidation>
-
   </PropertyGroup>
 
   <PropertyGroup

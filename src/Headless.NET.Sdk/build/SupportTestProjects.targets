@@ -6,30 +6,24 @@
     <IsTestProject Condition="'$(IsTestProject)' == '' AND '$(IsTestHarnessProject)' == 'true'">false</IsTestProject>
     <IsTestingPlatformApplication
       Condition="'$(IsTestingPlatformApplication)' == '' AND '$(IsTestHarnessProject)' == 'true'"
-      >false</IsTestingPlatformApplication
-    >
+      >false</IsTestingPlatformApplication>
     <GenerateRuntimeConfigurationFiles
       Condition="'$(GenerateRuntimeConfigurationFiles)' == '' AND '$(IsTestHarnessProject)' == 'true'"
-      >true</GenerateRuntimeConfigurationFiles
-    >
+      >true</GenerateRuntimeConfigurationFiles>
     <OutputType Condition="'$(IsTestHarnessProject)' == 'true'">Library</OutputType>
     <IsPublishable Condition="'$(IsPublishable)' == ''">false</IsPublishable>
     <IsPackable Condition="'$(IsPackable)' == ''">false</IsPackable>
 
     <!-- Auto-enable code coverage on CI; explicit toggle wins. -->
     <EnableCodeCoverage Condition="'$(EnableCodeCoverage)' == '' AND '$(ContinuousIntegrationBuild)' == 'true'"
-      >true</EnableCodeCoverage
-    >
+      >true</EnableCodeCoverage>
     <HeadlessCoverageSettingsPath Condition="'$(HeadlessCoverageSettingsPath)' == ''"
-      >$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '..', 'configurations', 'default.runsettings'))</HeadlessCoverageSettingsPath
-    >
+      >$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '..', 'configurations', 'default.runsettings'))</HeadlessCoverageSettingsPath>
   </PropertyGroup>
 
   <!-- The Test SDK owns these exact extension bindings, including direct consumer duplicates. -->
   <ItemGroup Condition="'$(HeadlessSdkProjectType)' == 'Test'">
-    <PackageReference
-      Remove="Microsoft.Testing.Extensions.CrashDump;Microsoft.Testing.Extensions.CodeCoverage;Microsoft.Testing.Extensions.HangDump;Microsoft.Testing.Extensions.HotReload;Microsoft.Testing.Extensions.Retry;Microsoft.Testing.Extensions.TrxReport"
-    />
+    <PackageReference Remove="Microsoft.Testing.Extensions.CrashDump;Microsoft.Testing.Extensions.CodeCoverage;Microsoft.Testing.Extensions.HangDump;Microsoft.Testing.Extensions.HotReload;Microsoft.Testing.Extensions.Retry;Microsoft.Testing.Extensions.TrxReport" />
     <PackageReference
       Include="Microsoft.Testing.Extensions.CrashDump"
       Version="$(_HeadlessMtpCrashDumpVersion)"
@@ -84,11 +78,7 @@
     Most CI pipelines run `dotnet build` and `dotnet test` separately. Avoid repeating analyzer
     work in MTP's test-build phase unless the consumer explicitly opts out of this optimization.
   -->
-  <Target
-    Name="DisableAnalyzersWhenRunningTests"
-    BeforeTargets="_MTPBuild"
-    Condition="'$(OptimizeTestRun)' != 'false'"
-  >
+  <Target Name="DisableAnalyzersWhenRunningTests" BeforeTargets="_MTPBuild" Condition="'$(OptimizeTestRun)' != 'false'">
     <PropertyGroup>
       <RunAnalyzers>false</RunAnalyzers>
     </PropertyGroup>
@@ -107,11 +97,9 @@
   <PropertyGroup Condition="'$(EnableDefaultTestSettings)' != 'false'">
     <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --report-trx</TestingPlatformCommandLineArguments>
     <TestingPlatformCommandLineArguments Condition="'$(EnableCodeCoverage)' == 'true'"
-      >$(TestingPlatformCommandLineArguments) --coverage</TestingPlatformCommandLineArguments
-    >
+      >$(TestingPlatformCommandLineArguments) --coverage</TestingPlatformCommandLineArguments>
     <TestingPlatformCommandLineArguments Condition="'$(EnableCodeCoverage)' == 'true'"
-      >$(TestingPlatformCommandLineArguments) --coverage-settings &quot;$(HeadlessCoverageSettingsPath)&quot;</TestingPlatformCommandLineArguments
-    >
+      >$(TestingPlatformCommandLineArguments) --coverage-settings &quot;$(HeadlessCoverageSettingsPath)&quot;</TestingPlatformCommandLineArguments>
     <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --crashdump --crashdump-type mini</TestingPlatformCommandLineArguments>
     <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --hangdump --hangdump-timeout 10m --hangdump-type mini</TestingPlatformCommandLineArguments>
     <TestingPlatformCommandLineArguments>$(TestingPlatformCommandLineArguments) --minimum-expected-tests 1</TestingPlatformCommandLineArguments>

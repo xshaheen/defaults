@@ -7,9 +7,7 @@
   -->
   <PropertyGroup>
     <GenerateSBOM Condition="'$(GenerateSBOM)' == ''">false</GenerateSBOM>
-    <_HeadlessMicrosoftSbomTargetsVersionNormalized
-      >$(_HeadlessMicrosoftSbomTargetsVersion.Replace('[', '').Replace(']', ''))</_HeadlessMicrosoftSbomTargetsVersionNormalized
-    >
+    <_HeadlessMicrosoftSbomTargetsVersionNormalized>$(_HeadlessMicrosoftSbomTargetsVersion.Replace('[', '').Replace(']', ''))</_HeadlessMicrosoftSbomTargetsVersionNormalized>
     <!--
       Prefer the restore-resolved location (GeneratePathProperty on the reference): it is correct
       when the package is satisfied from a NuGet fallback folder or shared cache, where nothing
@@ -23,22 +21,14 @@
       contain Microsoft.Sbom.Targets (fallback folders, shared caches) must restore it into the
       local folder before packing with GenerateSBOM=true.
     -->
-    <_HeadlessMicrosoftSbomTargetsRoot
-      Condition="'$(PkgMicrosoft_Sbom_Targets)' != ''"
-      >$([MSBuild]::EnsureTrailingSlash('$(PkgMicrosoft_Sbom_Targets)'))</_HeadlessMicrosoftSbomTargetsRoot
-    >
-    <_HeadlessMicrosoftSbomTargetsRoot
-      Condition="'$(_HeadlessMicrosoftSbomTargetsRoot)' == ''"
-      >$([MSBuild]::EnsureTrailingSlash('$(NuGetPackageRoot)'))microsoft.sbom.targets/$(_HeadlessMicrosoftSbomTargetsVersionNormalized)/</_HeadlessMicrosoftSbomTargetsRoot
-    >
-    <_HeadlessMicrosoftSbomTargetsPath
-      Condition="'$(TargetFramework)' == ''"
-      >$(_HeadlessMicrosoftSbomTargetsRoot)buildMultiTargeting/Microsoft.Sbom.Targets.targets</_HeadlessMicrosoftSbomTargetsPath
-    >
-    <_HeadlessMicrosoftSbomTargetsPath
-      Condition="'$(TargetFramework)' != ''"
-      >$(_HeadlessMicrosoftSbomTargetsRoot)build/Microsoft.Sbom.Targets.targets</_HeadlessMicrosoftSbomTargetsPath
-    >
+    <_HeadlessMicrosoftSbomTargetsRoot Condition="'$(PkgMicrosoft_Sbom_Targets)' != ''"
+      >$([MSBuild]::EnsureTrailingSlash('$(PkgMicrosoft_Sbom_Targets)'))</_HeadlessMicrosoftSbomTargetsRoot>
+    <_HeadlessMicrosoftSbomTargetsRoot Condition="'$(_HeadlessMicrosoftSbomTargetsRoot)' == ''"
+      >$([MSBuild]::EnsureTrailingSlash('$(NuGetPackageRoot)'))microsoft.sbom.targets/$(_HeadlessMicrosoftSbomTargetsVersionNormalized)/</_HeadlessMicrosoftSbomTargetsRoot>
+    <_HeadlessMicrosoftSbomTargetsPath Condition="'$(TargetFramework)' == ''"
+      >$(_HeadlessMicrosoftSbomTargetsRoot)buildMultiTargeting/Microsoft.Sbom.Targets.targets</_HeadlessMicrosoftSbomTargetsPath>
+    <_HeadlessMicrosoftSbomTargetsPath Condition="'$(TargetFramework)' != ''"
+      >$(_HeadlessMicrosoftSbomTargetsRoot)build/Microsoft.Sbom.Targets.targets</_HeadlessMicrosoftSbomTargetsPath>
   </PropertyGroup>
 
   <!--

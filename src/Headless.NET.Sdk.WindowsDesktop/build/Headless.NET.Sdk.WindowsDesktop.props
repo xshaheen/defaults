@@ -4,8 +4,7 @@
     <HeadlessSdkName>Headless.NET.Sdk.WindowsDesktop</HeadlessSdkName>
     <HeadlessSdkProjectType>WindowsDesktop</HeadlessSdkProjectType>
     <_HeadlessSdkDefaultIsPackable Condition="'$(_HeadlessSdkDefaultIsPackable)' == ''"
-      >true</_HeadlessSdkDefaultIsPackable
-    >
+      >true</_HeadlessSdkDefaultIsPackable>
   </PropertyGroup>
 
   <Import Project="$(MSBuildThisFileDirectory)Headless.NET.Sdk.props" />
